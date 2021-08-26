@@ -1,10 +1,10 @@
-package io.github.davidqf555.petersings;
+package io.github.davidqf555.musicbot;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import io.github.davidqf555.petersings.audio.AudioEventListener;
-import io.github.davidqf555.petersings.commands.CommandEventListener;
+import io.github.davidqf555.musicbot.audio.AudioEventListener;
+import io.github.davidqf555.musicbot.commands.CommandEventListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;

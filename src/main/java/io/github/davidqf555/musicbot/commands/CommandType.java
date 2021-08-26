@@ -1,4 +1,4 @@
-package io.github.davidqf555.petersings.commands;
+package io.github.davidqf555.musicbot.commands;
 
 public enum CommandType {
 

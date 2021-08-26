@@ -1,8 +1,8 @@
-package io.github.davidqf555.petersings.audio;
+package io.github.davidqf555.musicbot.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import io.github.davidqf555.petersings.Bot;
-import io.github.davidqf555.petersings.GuildInfo;
+import io.github.davidqf555.musicbot.Bot;
+import io.github.davidqf555.musicbot.GuildInfo;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;

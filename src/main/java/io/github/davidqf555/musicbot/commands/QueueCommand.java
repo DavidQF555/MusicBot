@@ -1,8 +1,8 @@
-package io.github.davidqf555.petersings.commands;
+package io.github.davidqf555.musicbot.commands;
 
-import io.github.davidqf555.petersings.Bot;
-import io.github.davidqf555.petersings.GuildInfo;
-import io.github.davidqf555.petersings.Util;
+import io.github.davidqf555.musicbot.Bot;
+import io.github.davidqf555.musicbot.GuildInfo;
+import io.github.davidqf555.musicbot.Util;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;

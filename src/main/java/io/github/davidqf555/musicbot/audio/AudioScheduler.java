@@ -1,4 +1,4 @@
-package io.github.davidqf555.petersings.audio;
+package io.github.davidqf555.musicbot.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -8,8 +8,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import io.github.davidqf555.petersings.Bot;
-import io.github.davidqf555.petersings.Util;
+import io.github.davidqf555.musicbot.Bot;
+import io.github.davidqf555.musicbot.Util;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;

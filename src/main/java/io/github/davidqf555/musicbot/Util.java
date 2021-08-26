@@ -1,4 +1,4 @@
-package io.github.davidqf555.petersings;
+package io.github.davidqf555.musicbot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 

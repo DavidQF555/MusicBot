@@ -1,4 +1,4 @@
-package io.github.davidqf555.petersings.commands;
+package io.github.davidqf555.musicbot.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 

@@ -1,4 +1,4 @@
-package io.github.davidqf555.petersings.audio;
+package io.github.davidqf555.musicbot.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;

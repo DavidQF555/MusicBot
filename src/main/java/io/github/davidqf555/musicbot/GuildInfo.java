@@ -1,7 +1,7 @@
-package io.github.davidqf555.petersings;
+package io.github.davidqf555.musicbot;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import io.github.davidqf555.petersings.audio.AudioScheduler;
+import io.github.davidqf555.musicbot.audio.AudioScheduler;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class GuildInfo {
