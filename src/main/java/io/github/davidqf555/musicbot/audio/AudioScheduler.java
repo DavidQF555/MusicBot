@@ -82,11 +82,11 @@ public class AudioScheduler extends AudioEventAdapter {
         @Override
         public void trackLoaded(AudioTrack track) {
             tracks.add(track);
+            AudioTrackInfo info = track.getInfo();
+            message.reply(Util.createMessage("Queued [" + info.title + "](" + info.uri + ")").build()).queue();
             if (getPlayer().getPlayingTrack() == null) {
                 nextTrack();
             }
-            AudioTrackInfo info = track.getInfo();
-            message.reply(Util.createMessage("Queued [" + info.title + "](" + info.uri + ")").build()).queue();
         }
 
         @Override
