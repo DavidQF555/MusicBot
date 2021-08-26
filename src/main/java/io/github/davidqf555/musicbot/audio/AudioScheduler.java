@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 public class AudioScheduler extends AudioEventAdapter {
@@ -92,13 +91,7 @@ public class AudioScheduler extends AudioEventAdapter {
 
         @Override
         public void playlistLoaded(AudioPlaylist playlist) {
-            List<AudioTrack> all = playlist.getTracks();
-            tracks.addAll(all);
-            if (getPlayer().getPlayingTrack() == null) {
-                nextTrack();
-            }
-            AudioTrackInfo selected = playlist.getSelectedTrack().getInfo();
-            message.reply(Util.createMessage("Queued playlist of " + all.size() + " for [" + selected.title + "](" + selected.uri + ")").build()).queue();
+            trackLoaded(playlist.getTracks().get(0));
         }
 
         @Override
