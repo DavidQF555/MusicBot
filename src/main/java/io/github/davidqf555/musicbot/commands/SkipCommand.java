@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.Map;
 
-public class SkipCommand extends Command {
+public class SkipCommand implements Command {
 
     @Override
     public void onCommand(Message message, Map<String, String> args) {

@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.Map;
 
-public class QueueCommand extends Command {
+public class QueueCommand implements Command {
 
     @Override
     public void onCommand(Message message, Map<String, String> args) {
