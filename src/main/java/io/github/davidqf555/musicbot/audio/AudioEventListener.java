@@ -30,6 +30,6 @@ public class AudioEventListener extends ListenerAdapter {
         GuildInfo info = Bot.INFO.computeIfAbsent(guild, g -> new GuildInfo(new AudioScheduler(g), Bot.MANAGER.createPlayer()));
         AudioPlayer player = info.getPlayer();
         player.addListener(info.getScheduler());
-        guild.getAudioManager().setSendingHandler(new ResultHandler(player));
+        guild.getAudioManager().setSendingHandler(new SendHandler(player));
     }
 }
