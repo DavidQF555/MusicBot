@@ -1,42 +1,58 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>me.david.PeterSings</groupId>
-	<artifactId>PeterSings</artifactId>
-	<version>V1</version>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.github.davidqf555.petersings</groupId>
+    <artifactId>PeterSings</artifactId>
+    <version>1.0</version>
 
-	<dependencies>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
 
-		<dependency>
-			<groupId>net.dv8tion</groupId>
-			<artifactId>JDA</artifactId>
-			<version>4.1.1_107</version>
-		</dependency>
+    <dependencies>
 
-		<dependency>
-			<groupId>com.sedmelluq</groupId>
-			<artifactId>lavaplayer</artifactId>
-			<version>1.3.34</version>
-		</dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>4.2.1_265</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>club.minnced</groupId>
+                    <artifactId>opus-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<dependency>
-			<groupId>com.sedmelluq</groupId>
-			<artifactId>jda-nas</artifactId>
-			<version>1.1.0</version>
-		</dependency>
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.3.75</version>
+        </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.7.30</version>
+        </dependency>
 
-	<repositories>
+    </dependencies>
 
-		<repository>
-			<id>jcenter</id>
-			<name>jcenter-bintray</name>
-			<url>https://jcenter.bintray.com</url>
-		</repository>
+    <repositories>
 
-	</repositories>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+    </repositories>
 
 </project>
