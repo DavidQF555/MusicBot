@@ -31,7 +31,7 @@ module.exports = {
 				schedulers.set(interaction.guildId, scheduler);
 			}
 			else {
-				await interaction.reply('You must be in a voice channel');
+				await interaction.followUp('You must be in a voice channel');
 				return;
 			}
 		}
@@ -40,18 +40,18 @@ module.exports = {
 		}
 		catch (error) {
 			console.warn(error);
-			await interaction.reply('Failed to join voice channel within 20 seconds, please try again later!');
+			await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
 			return;
 		}
 
 		try {
 			const track = await createTrack(interaction.options.get('query').value, interaction);
 			scheduler.enqueue(track);
-			await interaction.reply(`Enqueued **${track.title}**`);
+			await interaction.followUp(`Enqueued **${track.title}**`);
 		}
 		catch (error) {
 			console.warn(error);
-			await interaction.reply('Failed to play track, please try again later!');
+			await interaction.followUp('Failed to play track, please try again later!');
 		}
 	},
 };
