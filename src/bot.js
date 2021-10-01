@@ -4,7 +4,7 @@ const { token, clientId } = require('../config.json');
 const { readdirSync } = require('fs');
 const { Routes } = require('discord-api-types/v9');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES] });
 const commands = new Collection();
 const rest = new REST({ version: '9' }).setToken(token);
 
