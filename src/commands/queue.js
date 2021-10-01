@@ -58,36 +58,37 @@ module.exports = {
 
 async function createTrack(query, interaction) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${yt_data_key}`;
-	let out;
-	https.get(url, res => {
-		res.setEncoding('utf-8');
-		let body = '';
-		res.on('data', data => {
-			body += data;
-		});
-		res.on('end', () => {
-			try {
-				const video = JSON.parse(body).items[0];
-				out = new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`,
-					function() {
-						interaction.reply({ content: 'Now playing!', ephemeral: true }).catch(console.warn);
-					},
-					function() {
-						interaction.reply({ content: 'Now finished!', ephemeral: true }).catch(console.warn);
-					},
-					function(error) {
-						console.warn(error);
-						interaction.reply({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
-					},
-				);
-			}
-			catch (error) {
-				console.error(error.message);
-			}
-		});
+	return new Promise((resolve, reject) => {
+		https.get(url, res => {
+			res.setEncoding('utf-8');
+			let body = '';
+			res.on('data', data => {
+				body += data;
+			});
+			res.on('end', () => {
+				try {
+					const video = JSON.parse(body).items[0];
+					resolve(new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`,
+						function() {
+							interaction.reply({ content: 'Now playing!', ephemeral: true }).catch(console.warn);
+						},
+						function() {
+							interaction.reply({ content: 'Now finished!', ephemeral: true }).catch(console.warn);
+						},
+						function(error) {
+							console.warn(error);
+							interaction.reply({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
+						},
+					));
+				}
+				catch (error) {
+					reject(error.message);
+				}
+			});
 
-	}).on('error', error => {
-		console.error(error.message);
-	});
-	return out;
+		}).on('error', error => {
+			reject(error.message);
+		});
+	},
+	);
 }
