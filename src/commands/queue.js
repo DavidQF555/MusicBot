@@ -46,7 +46,7 @@ module.exports = {
 
 		try {
 			const track = await createTrack(interaction.options.get('query').value, interaction);
-			scheduler.enqueue(track);
+			await scheduler.enqueue(track);
 			await interaction.followUp(`Enqueued **${track.title}**`);
 		}
 		catch (error) {
@@ -82,12 +82,12 @@ async function createTrack(query, interaction) {
 					));
 				}
 				catch (error) {
-					reject(error.message);
+					reject(error);
 				}
 			});
 
 		}).on('error', error => {
-			reject(error.message);
+			reject(error);
 		});
 	},
 	);

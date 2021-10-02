@@ -23,7 +23,7 @@ module.exports.AudioTrack = class AudioTrack {
 		this.onError = onError;
 	}
 
-	createAudioResource() {
+	async createAudioResource() {
 		return new Promise((resolve, reject) => {
 			const process = raw(
 				this.url,
@@ -45,12 +45,11 @@ module.exports.AudioTrack = class AudioTrack {
 				stream.resume();
 				reject(error);
 			};
-			process
-				.once('spawn', () => {
-					demuxProbe(stream)
-						.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
-						.catch(onError);
-				})
+			process.once('spawn', () => {
+				demuxProbe(stream)
+					.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
+					.catch(onError);
+			})
 				.catch(onError);
 		});
 	}
@@ -61,6 +60,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 	constructor(connection) {
 		this.connection = connection;
 		this.player = createAudioPlayer();
+		this.connection.subscribe(this.player);
 		this.queue = [];
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
@@ -108,18 +108,19 @@ module.exports.AudioScheduler = class AudioScheduler {
 		try {
 			const resource = await next.createAudioResource();
 			this.player.play(resource);
-			this.queueLock = false;
 		}
 		catch (error) {
 			next.onError(error);
-			this.queueLock = false;
 			return this.processQueue();
+		}
+		finally{
+			this.queueLock = false;
 		}
 	}
 
-	enqueue(track) {
+	async enqueue(track) {
 		this.queue.push(track);
-		this.processQueue();
+		await this.processQueue();
 	}
 
 	stop() {
