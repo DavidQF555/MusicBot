@@ -7,11 +7,11 @@ const { GuildMember } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('queue')
+		.setName('Play')
 		.setDescription('Queues a song')
 		.addStringOption(builder =>
 			builder.setName('query')
-				.setDescription('Query to search')
+				.setDescription('Query to search on Youtube')
 				.setRequired(true),
 		),
 	async execute(interaction) {
