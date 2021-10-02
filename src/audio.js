@@ -15,12 +15,19 @@ module.exports.schedulers = new Map();
 
 module.exports.AudioTrack = class AudioTrack {
 
-	constructor(title, url, onStart, onFinish, onError) {
+	constructor(title, url, channel) {
 		this.title = title;
 		this.url = url;
-		this.onStart = onStart;
-		this.onFinish = onFinish;
-		this.onError = onError;
+		this.channel = channel;
+	}
+
+	onStart() {
+		this.channel.send({ content: `Now playing **${this.title}**`, ephemeral: true }).catch(console.warn);
+	}
+
+	onError(error) {
+		console.warn(error);
+		this.channel.send({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
 	}
 
 	async createAudioResource() {
@@ -49,8 +56,7 @@ module.exports.AudioTrack = class AudioTrack {
 				demuxProbe(stream)
 					.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
 					.catch(onError);
-			})
-				.catch(onError);
+			}).catch(onError);
 		});
 	}
 };
@@ -62,18 +68,19 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.player = createAudioPlayer();
 		this.connection.subscribe(this.player);
 		this.queue = [];
+		this.index = -1;
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
 					try {
-						await entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000);
+						await entersState(this.connection, VoiceConnectionStatus.Connecting, 5e3);
 					}
 					catch {
 						this.connection.destroy();
 					}
 				}
 				else if (this.connection.rejoinAttempts < 5) {
-					await wait((this.connection.rejoinAttempts + 1) * 5_000);
+					await wait((this.connection.rejoinAttempts + 1) * 5e3);
 					this.connection.rejoin();
 				}
 				else {
@@ -86,7 +93,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
 				try {
-					await entersState(this.connection, VoiceConnectionStatus.Ready, 20_000);
+					await entersState(this.connection, VoiceConnectionStatus.Ready, 20e3);
 				}
 				catch {
 					if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) this.connection.destroy();
@@ -102,16 +109,17 @@ module.exports.AudioScheduler = class AudioScheduler {
 		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || this.queue.length === 0) {
 			return;
 		}
+		this.nextIndex();
 		this.queueLock = true;
-
-		const next = this.queue.shift();
+		const next = this.queue[this.index];
 		try {
 			const resource = await next.createAudioResource();
+			next.onStart();
 			this.player.play(resource);
 		}
 		catch (error) {
 			next.onError(error);
-			return this.processQueue();
+			await this.processQueue();
 		}
 		finally{
 			this.queueLock = false;
@@ -119,6 +127,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 	}
 
 	async enqueue(track) {
+		this.index = Math.min(this.index, this.queue.length - 1);
 		this.queue.push(track);
 		await this.processQueue();
 	}
@@ -126,7 +135,24 @@ module.exports.AudioScheduler = class AudioScheduler {
 	stop() {
 		this.queueLock = true;
 		this.queue = [];
+		this.index = -1;
 		this.player.stop(true);
+	}
+
+	async skip() {
+		this.queueLock = false;
+		const skipped = this.queue[this.index];
+		this.player.stop(true);
+		await this.processQueue();
+		return skipped;
+	}
+
+	nextIndex() {
+		this.index++;
+	}
+
+	atEnd() {
+		return this.index >= this.queue.length - 1;
 	}
 
 };

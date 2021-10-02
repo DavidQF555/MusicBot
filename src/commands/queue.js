@@ -45,7 +45,7 @@ module.exports = {
 		}
 
 		try {
-			const track = await createTrack(interaction.options.get('query').value, interaction);
+			const track = await createTrack(interaction.options.get('query').value, interaction.channel);
 			await scheduler.enqueue(track);
 			await interaction.followUp(`Enqueued **${track.title}**`);
 		}
@@ -56,7 +56,7 @@ module.exports = {
 	},
 };
 
-async function createTrack(query, interaction) {
+async function createTrack(query, channel) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${yt_data_key}`;
 	return new Promise((resolve, reject) => {
 		https.get(url, res => {
@@ -68,18 +68,7 @@ async function createTrack(query, interaction) {
 			res.on('end', () => {
 				try {
 					const video = JSON.parse(body).items[0];
-					resolve(new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`,
-						function() {
-							interaction.reply({ content: 'Now playing!', ephemeral: true }).catch(console.warn);
-						},
-						function() {
-							interaction.reply({ content: 'Now finished!', ephemeral: true }).catch(console.warn);
-						},
-						function(error) {
-							console.warn(error);
-							interaction.reply({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
-						},
-					));
+					resolve(new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel));
 				}
 				catch (error) {
 					reject(error);
