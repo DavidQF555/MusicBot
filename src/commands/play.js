@@ -7,7 +7,7 @@ const { GuildMember } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('Play')
+		.setName('play')
 		.setDescription('Queues a song')
 		.addStringOption(builder =>
 			builder.setName('query')
