@@ -161,4 +161,14 @@ module.exports.AudioScheduler = class AudioScheduler {
 		return this.queue.length != 0 && (this.loop || this.index < this.queue.length - 1);
 	}
 
+	async remove(index) {
+		this.queue.splice(index, 1);
+		if(index <= this.index) {
+			if(this.index == index) {
+				await this.skip();
+			}
+			this.index--;
+		}
+	}
+
 };
