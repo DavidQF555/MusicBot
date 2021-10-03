@@ -201,7 +201,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 		}
 	}
 
-	async loop() {
+	async toggleLoop() {
 		this.loop = !this.loop;
 		if(this.loop) {
 			await this.processQueue();

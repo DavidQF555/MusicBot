@@ -13,7 +13,7 @@ module.exports = {
 			return;
 		}
 		await interaction.deferReply();
-		await scheduler.loop();
+		await scheduler.toggleLoop();
 		if(scheduler.loop) {
 			await interaction.followUp(createSimpleSuccess('Now looping'));
 		}
