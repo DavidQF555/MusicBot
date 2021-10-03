@@ -14,7 +14,7 @@ module.exports = {
 			await interaction.followUp(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		else if(scheduler.index >= scheduler.queue.length - 1 && scheduler.player.state.status === AudioPlayerStatus.Idle && !scheduler.queueLock) {
+		else if(!scheduler.hasNextTrack() && scheduler.player.state.status === AudioPlayerStatus.Idle && !scheduler.queueLock) {
 			await interaction.followUp(createSimpleFailure('At the end of the queue'));
 			return;
 		}

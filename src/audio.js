@@ -70,6 +70,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.connection.subscribe(this.player);
 		this.queue = [];
 		this.index = -1;
+		this.loop = false;
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
@@ -107,7 +108,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 	}
 
 	async processQueue() {
-		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || this.queue.length == 0 || this.index >= this.queue.length - 1) {
+		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || !this.hasNextTrack()) {
 			return;
 		}
 		this.nextIndex();
@@ -149,7 +150,15 @@ module.exports.AudioScheduler = class AudioScheduler {
 	}
 
 	nextIndex() {
+		if(this.loop && this.index >= this.queue.length - 1) {
+			this.index = 0;
+			return;
+		}
 		this.index++;
+	}
+
+	hasNextTrack() {
+		return this.queue.length != 0 && (this.loop || this.index < this.queue.length - 1);
 	}
 
 };
