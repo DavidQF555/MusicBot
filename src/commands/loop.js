@@ -12,12 +12,13 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		scheduler.loop = !scheduler.loop;
+		await interaction.deferReply();
+		await scheduler.loop();
 		if(scheduler.loop) {
-			await interaction.reply(createSimpleSuccess('Now looping'));
+			await interaction.followUp(createSimpleSuccess('Now looping'));
 		}
 		else {
-			await interaction.reply(createSimpleSuccess('No longer looping'));
+			await interaction.followUp(createSimpleSuccess('No longer looping'));
 		}
 	},
 };

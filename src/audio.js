@@ -201,4 +201,11 @@ module.exports.AudioScheduler = class AudioScheduler {
 		}
 	}
 
+	async loop() {
+		this.loop = !this.loop;
+		if(this.loop) {
+			await this.processQueue();
+		}
+	}
+
 };
