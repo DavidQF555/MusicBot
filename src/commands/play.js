@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { yt_data_key } = require('../../config.json');
 const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
 const https = require('https');
 const { AudioTrack, AudioScheduler, schedulers } = require('../audio.js');
@@ -58,7 +57,7 @@ module.exports = {
 };
 
 async function createTrack(query, channel) {
-	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${yt_data_key}`;
+	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
 	return new Promise((resolve, reject) => {
 		https.get(url, res => {
 			res.setEncoding('utf-8');

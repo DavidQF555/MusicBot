@@ -1,12 +1,12 @@
+require('dotenv').config();
 const { REST } = require('@discordjs/rest');
 const { Client, Collection, Intents } = require('discord.js');
-const { token, clientId } = require('../config.json');
 const { readdirSync } = require('fs');
 const { Routes } = require('discord-api-types/v9');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES] });
 const commands = new Collection();
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
 const files = readdirSync('./src/commands').filter(file => file.endsWith('.js')).map(file => require(`./commands/${file}`));
 for (const file of files) {
@@ -14,7 +14,7 @@ for (const file of files) {
 }
 try {
 	rest.put(
-		Routes.applicationCommands(clientId),
+		Routes.applicationCommands(process.env.CLIENT_ID),
 		{ body: files.map(file => file.data.toJSON()) },
 	);
 	console.log('Successfully registered application commands.');
@@ -40,4 +40,4 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
-client.login(token);
+client.login(process.env.TOKEN);
