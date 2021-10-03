@@ -107,7 +107,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 	}
 
 	async processQueue() {
-		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || this.queue.length === 0) {
+		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || this.queue.length == 0 || this.index >= this.queue.length - 1) {
 			return;
 		}
 		this.nextIndex();
@@ -150,10 +150,6 @@ module.exports.AudioScheduler = class AudioScheduler {
 
 	nextIndex() {
 		this.index++;
-	}
-
-	atEnd() {
-		return this.index >= this.queue.length - 1;
 	}
 
 };

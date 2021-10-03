@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { AudioPlayerStatus } = require('@discordjs/voice');
 const { schedulers } = require('../audio.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 
@@ -9,11 +10,11 @@ module.exports = {
 	async execute(interaction) {
 		interaction.deferReply();
 		const scheduler = schedulers.get(interaction.guildId);
-		if(!scheduler || scheduler.queue.length === 0) {
+		if(!scheduler || scheduler.queue.length == 0) {
 			await interaction.followUp(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		else if(scheduler.atEnd()) {
+		else if(scheduler.index >= scheduler.queue.length - 1 && scheduler.player.state.status === AudioPlayerStatus.Idle && !scheduler.queueLock) {
 			await interaction.followUp(createSimpleFailure('At the end of the queue'));
 			return;
 		}
