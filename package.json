@@ -5,6 +5,9 @@
   "scripts": {
     "start": "node src/bot.js"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DavidQF555/MusicBot.git"
