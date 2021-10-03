@@ -171,4 +171,11 @@ module.exports.AudioScheduler = class AudioScheduler {
 		}
 	}
 
+	async clear() {
+		this.queueLock = false;
+		this.index = 0;
+		this.queue = [];
+		this.player.stop(true);
+	}
+
 };
