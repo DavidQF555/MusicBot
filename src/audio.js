@@ -10,6 +10,7 @@ const {
 const { raw } = require('youtube-dl-exec');
 const { promisify } = require('util');
 const wait = promisify(setTimeout);
+const { createSimpleFailure, createSimpleSuccess } = require('./util.js');
 
 module.exports.schedulers = new Map();
 
@@ -22,12 +23,12 @@ module.exports.AudioTrack = class AudioTrack {
 	}
 
 	onStart() {
-		this.channel.send({ content: `Now playing **${this.title}**`, ephemeral: true }).catch(console.warn);
+		this.channel.send(createSimpleSuccess(`Now playing [${this.title}](${this.url})`)).catch(console.warn);
 	}
 
 	onError(error) {
 		console.warn(error);
-		this.channel.send({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
+		this.channel.send(createSimpleFailure(`Error: ${error.message}`)).catch(console.warn);
 	}
 
 	async createAudioResource() {

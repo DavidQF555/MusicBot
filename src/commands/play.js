@@ -4,6 +4,7 @@ const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@disco
 const https = require('https');
 const { AudioTrack, AudioScheduler, schedulers } = require('../audio.js');
 const { GuildMember } = require('discord.js');
+const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -31,7 +32,7 @@ module.exports = {
 				schedulers.set(interaction.guildId, scheduler);
 			}
 			else {
-				await interaction.followUp('You must be in a voice channel');
+				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
 				return;
 			}
 		}
@@ -40,18 +41,18 @@ module.exports = {
 		}
 		catch (error) {
 			console.warn(error);
-			await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
+			await interaction.followUp(createSimpleFailure('Failed to join voice channel within 20 seconds, please try again later!'));
 			return;
 		}
 
 		try {
 			const track = await createTrack(interaction.options.get('query').value, interaction.channel);
 			await scheduler.enqueue(track);
-			await interaction.followUp(`Enqueued **${track.title}**`);
+			await interaction.followUp(createSimpleSuccess(`Enqueued [${track.title}](${track.url})`));
 		}
 		catch (error) {
 			console.warn(error);
-			await interaction.followUp('Failed to play track, please try again later!');
+			await interaction.followUp(createSimpleFailure('Failed to play track, please try again later!'));
 		}
 	},
 };

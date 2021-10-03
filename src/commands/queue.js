@@ -1,15 +1,16 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
 const { schedulers } = require('../audio.js');
+const { createSimpleFailure } = require('../util.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('queue')
-		.setDescription('Displays a the queued tracks'),
+		.setDescription('Displays the queued tracks'),
 	async execute(interaction) {
 		const scheduler = schedulers.get(interaction.guildId);
 		if(!scheduler) {
-			await interaction.reply('Nothing is currently queued');
+			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
 		const message = new MessageEmbed().setTitle('Queue');
