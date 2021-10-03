@@ -67,7 +67,6 @@ module.exports.AudioScheduler = class AudioScheduler {
 	constructor(connection) {
 		this.connection = connection;
 		this.player = createAudioPlayer();
-		this.connection.subscribe(this.player);
 		this.queue = [];
 		this.index = -1;
 		this.loop = false;
@@ -105,6 +104,16 @@ module.exports.AudioScheduler = class AudioScheduler {
 				}
 			}
 		});
+		this.player.on('stateChange', async (oldState, newState) => {
+			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
+				await this.processQueue();
+			}
+			else if (newState.status === AudioPlayerStatus.Playing) {
+				newState.resource.metadata.onStart();
+			}
+		});
+		this.player.on('error', error => error.resource.metadata.onError(error));
+		this.connection.subscribe(this.player);
 	}
 
 	async processQueue() {
@@ -116,7 +125,6 @@ module.exports.AudioScheduler = class AudioScheduler {
 		const next = this.queue[this.index];
 		try {
 			const resource = await next.createAudioResource();
-			next.onStart();
 			this.player.play(resource);
 		}
 		catch (error) {
@@ -176,6 +184,21 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.index = 0;
 		this.queue = [];
 		this.player.stop(true);
+	}
+
+	shuffle() {
+		let current = this.queue.length, random;
+		while (current != 0) {
+			random = Math.floor(Math.random() * current);
+			current--;
+			[this.queue[current], this.queue[random]] = [this.queue[random], this.queue[current]];
+			if(current == this.index) {
+				this.index = random;
+			}
+			else if(random == this.index) {
+				this.index = current;
+			}
+		}
 	}
 
 };
