@@ -22,7 +22,7 @@ This a basic Discord music bot created using [Node.js](https://nodejs.org/) and 
 ## Usage
 
 ### Commands
-| Name | Descripton |
+| Name | Description |
 | - | - |
 | play | Queues a track using a query searched on YouTube |
 | queue | Displays the current queue |
