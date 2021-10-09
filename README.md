@@ -4,10 +4,10 @@ This a basic Discord music bot created using [Node.js](https://nodejs.org/) and 
 
 ## Setup
 
-1. Create a Discord application on the [Discord Developer Portal](https://discord.com/developers/applications)
+1. Create a Discord application in the [Discord Developer Portal](https://discord.com/developers/applications)
 2. In the *Bot* tab, click the *Add Bot* button
 3. Copy the bot token and paste it as the **TOKEN** enviroment variable
-4. Copy the client ID in the *OAth2* tab and paste it as the **CLIENT_ID** environment variable
+4. Copy the client ID in the *OAuth2* tab and paste it as the **CLIENT_ID** environment variable
 5. Add the bot to servers using `https://discord.com/api/oauth2/authorize?client_id=CLIENT_ID&permissions=3147776&scope=applications.commands%20bot`, replacing *CLIENT_ID* with the bot's client ID
 6. Go to the [Google Cloud API Credentials Page](https://console.cloud.google.com/apis/credentials) and click *Create Credentials* and then *API Key*. If you want, you can restrict the key to only call *YouTube Data API v3*. Paste this key as the **YT_DATA_KEY** environment variable. This key is what the bot uses to search for videos on YouTube 
 7. Start the bot with the command `npm start` in the console
