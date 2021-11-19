@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/DavidQF555/MusicBot",
   "dependencies": {
+    "@davidqf555/simple-request": "^1.0.7",
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.6.0",

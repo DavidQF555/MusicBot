@@ -1,9 +1,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
-const https = require('https');
 const { AudioTrack, AudioScheduler, schedulers } = require('../audio.js');
 const { GuildMember } = require('discord.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
+const { get } = require('@davidqf555/simple-request');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -58,26 +58,6 @@ module.exports = {
 
 async function createTrack(query, channel) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
-	return new Promise((resolve, reject) => {
-		https.get(url, res => {
-			res.setEncoding('utf-8');
-			let body = '';
-			res.on('data', data => {
-				body += data;
-			});
-			res.on('end', () => {
-				try {
-					const video = JSON.parse(body).items[0];
-					resolve(new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel));
-				}
-				catch (error) {
-					reject(error);
-				}
-			});
-
-		}).on('error', error => {
-			reject(error);
-		});
-	},
-	);
+	const video = (await get(url)).items[0];
+	return new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel);
 }
