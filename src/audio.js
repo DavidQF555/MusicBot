@@ -122,7 +122,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 		let track;
 		if(this.index + 1 >= this.queue.length) {
 			if(!this.autoplayer) {
-				track = this.autoplayer.getNextTrack(); 
+				track = await this.autoplayer.getNextTrack(this); 
 				if(!track) {
 					return;
 				}
@@ -206,15 +206,12 @@ module.exports.AudioScheduler = class AudioScheduler {
 
 };
 
-module.exports.LoopAutoplayer = new class LoopAutoplayer {
+module.exports.LoopAutoplayer = class LoopAutoplayer {
 
-	constructor(scheduler) {
-		this.scheduler = scheduler;
-	}
-
-	getNextTrack() {
-		if(this.scheduler.index) {
-
+	async getNextTrack(scheduler) {
+		if(scheduler.queue.length > 0) {
+			scheduler.index = -1;
+			scheduler.processQueue();
 		}
 	}
 

@@ -3,16 +3,17 @@ const{ schedulers, LoopAutoplayer } = require('../audio.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 
 const types = {
-	'none': scheduler => null,
-	'loop': scheduler => new LoopAutoplayer(scheduler),
+	none: null,
+	loop: new LoopAutoplayer(),
 }
 
-getChoices() {
+function getChoices() {
 	const choices = [];
+	let value = 0;
 	for(let key in Object.keys(types)) {
-		choices.push({
-			'name':key,
-			'value':key
+		value = choices.push({
+			name:key,
+			value:value,
 		});
 	}
 	return choices;
@@ -34,7 +35,7 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;
 		}
-		scheduler.autoplayer = types[interaction.options.get('type').value](scheduler);
+		scheduler.autoplayer = types[interaction.options.get('type').value];
 			await interaction.reply(createSimpleSuccess('Changed autoplayer'));
 	},
 };
