@@ -7,18 +7,6 @@ const types = {
 	loop: new LoopAutoplayer(),
 }
 
-function getChoices() {
-	const choices = [];
-	let value = 0;
-	for(let key in Object.keys(types)) {
-		value = choices.push({
-			name:key,
-			value:value,
-		});
-	}
-	return choices;
-}
-
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('autoplay')
@@ -27,7 +15,7 @@ module.exports = {
 			builder.setName('type')
 				.setDescription('Type of autoplayer')
 				.setRequired(true)
-				.addChoices(getChoices()),
+				.addChoices(Object.keys(types).map(key => [key, key])),
 		),
 	async execute(interaction) {
 		const scheduler = schedulers.get(interaction.guildId);
