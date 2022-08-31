@@ -58,6 +58,6 @@ module.exports = {
 
 async function createTrack(query, channel) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
-	const video = (await get(url)).items[0];
+	const video = JSON.parse(await get(url)).items[0];
 	return new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel);
 }
