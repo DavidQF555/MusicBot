@@ -1,12 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const{ schedulers } = require('../audio/scheduler.js');
-const LoopAutoplayer = require('../audio/autoplay/loop.js')
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
+const { readdirSync } = require('fs');
 
 const types = {
 	none: null,
-	loop: new LoopAutoplayer(),
 };
+readdirSync('./src/audio/autoplayers').filter(file => file.endsWith('.js')).map(file => require(`../audio/autoplayers/${file}`)).forEach(data => {
+	types[data.name] = data.autoplayer;
+});
 
 module.exports = {
 	data: new SlashCommandBuilder()
