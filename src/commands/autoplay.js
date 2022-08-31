@@ -15,7 +15,9 @@ module.exports = {
 			builder.setName('type')
 				.setDescription('Type of autoplayer')
 				.setRequired(true)
-				.addChoices(Object.keys(types).map(key => [key, key])),
+				.addChoices(...Object.keys(types).map(key => {
+					return { name: key, value: key };
+				})),
 		),
 	async execute(interaction) {
 		const scheduler = schedulers.get(interaction.guildId);
