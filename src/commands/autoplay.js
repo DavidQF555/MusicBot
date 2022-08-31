@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const{ schedulers, LoopAutoplayer } = require('../audio.js');
+const{ schedulers } = require('../audio/scheduler.js');
+const LoopAutoplayer = require('../audio/autoplay/loop.js')
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 
 const types = {

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const { schedulers } = require('../audio.js');
+const { schedulers } = require('../audio/scheduler.js');
 const { createSimpleFailure } = require('../util.js');
 const { AudioPlayerStatus } = require('@discordjs/voice');
 

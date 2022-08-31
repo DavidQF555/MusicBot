@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const{ schedulers } = require('../audio.js');
+const{ schedulers } = require('../audio/scheduler.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 
 module.exports = {

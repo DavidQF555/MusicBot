@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
-const { AudioTrack, AudioScheduler, schedulers } = require('../audio.js');
+const { AudioScheduler, schedulers } = require('../audio/scheduler.js');
+const AudioTrack = require('../audio/track.js');
+
 const { GuildMember } = require('discord.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 const { get } = require('@davidqf555/simple-request');
