@@ -47,7 +47,6 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.player = createAudioPlayer();
 		this.queue = [];
 		this.index = -1;
-		this.loop = false;
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
@@ -95,29 +94,40 @@ module.exports.AudioScheduler = class AudioScheduler {
 	}
 
 	async processQueue() {
-		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle || !this.hasNextTrack()) {
+		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
 			return;
 		}
-		this.nextIndex();
-		this.queueLock = true;
-		const next = this.queue[this.index];
+		let track;
+		if(this.index < this.queue.length - 1) {
+			this.index++;
+			track = this.queue[this.index];
+		}
+		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
+			track = await this.autoplayer.getNextTrack(this);
+			if(!track) {
+				return;
+			}
+		}
+		else {
+			return;
+		}
 		try {
-			const resource = await next.createAudioResource();
+			const resource = await track.createAudioResource();
 			this.player.play(resource);
 		}
 		catch (error) {
-			next.onError(error);
+			track.onError(error);
 			await this.processQueue();
-		}
-		finally{
-			this.queueLock = false;
 		}
 	}
 
 	async enqueue(track) {
-		this.index = Math.min(this.index, this.queue.length - 1);
 		this.queue.push(track);
 		await this.processQueue();
+	}
+
+	hasNextTrack() {
+		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
 	}
 
 	stop() {
@@ -141,10 +151,6 @@ module.exports.AudioScheduler = class AudioScheduler {
 			return;
 		}
 		this.index++;
-	}
-
-	hasNextTrack() {
-		return this.queue.length != 0 && (this.loop || this.index < this.queue.length - 1);
 	}
 
 	async remove(index) {
@@ -179,11 +185,19 @@ module.exports.AudioScheduler = class AudioScheduler {
 		}
 	}
 
-	async toggleLoop() {
-		this.loop = !this.loop;
-		if(this.loop) {
-			await this.processQueue();
+};
+
+module.exports.LoopAutoplayer = class LoopAutoplayer {
+
+	async getNextTrack(scheduler) {
+		if(scheduler.queue.length > 0) {
+			scheduler.index = -1;
+			await scheduler.processQueue();
 		}
+	}
+
+	hasNextTrack(scheduler) {
+		return scheduler.queue.length > 0;
 	}
 
 };
