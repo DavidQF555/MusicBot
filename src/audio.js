@@ -7,7 +7,7 @@ const {
 	createAudioResource,
 	demuxProbe,
 } = require('@discordjs/voice');
-const { raw } = require('youtube-dl-exec');
+const { exec } = require('youtube-dl-exec');
 const { promisify } = require('util');
 const wait = promisify(setTimeout);
 const { createSimpleFailure, createSimpleSuccess } = require('./util.js');
@@ -33,13 +33,13 @@ module.exports.AudioTrack = class AudioTrack {
 
 	async createAudioResource() {
 		return new Promise((resolve, reject) => {
-			const process = raw(
+			const process = exec(
 				this.url,
 				{
-					o: '-',
-					q: '',
-					f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-					r: '100K',
+					output: '-',
+					quiet: false,
+					format: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
+					limitRate: '100K',
 				},
 				{ stdio: ['ignore', 'pipe', 'ignore'] },
 			);
@@ -55,7 +55,7 @@ module.exports.AudioTrack = class AudioTrack {
 			};
 			process.once('spawn', () => {
 				demuxProbe(stream)
-					.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
+					.then(probe => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
 					.catch(onError);
 			}).catch(onError);
 		});
