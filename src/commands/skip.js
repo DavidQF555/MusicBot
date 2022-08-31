@@ -8,7 +8,7 @@ module.exports = {
 		.setName('skip')
 		.setDescription('Skips the current song'),
 	async execute(interaction) {
-		interaction.deferReply();
+		await interaction.deferReply();
 		const scheduler = schedulers.get(interaction.guildId);
 		if(!scheduler || scheduler.queue.length == 0) {
 			await interaction.followUp(createSimpleFailure('Nothing is currently queued'));
