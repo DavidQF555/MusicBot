@@ -5,7 +5,7 @@ const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 const types = {
 	none: null,
 	loop: new LoopAutoplayer(),
-}
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,6 +24,8 @@ module.exports = {
 			return;
 		}
 		scheduler.autoplayer = types[interaction.options.get('type').value];
-			await interaction.reply(createSimpleSuccess('Changed autoplayer'));
+		await interaction.deferReply();
+		await scheduler.processQueue();
+		await interaction.followUp(createSimpleSuccess('Changed autoplayer'));
 	},
 };

@@ -120,18 +120,19 @@ module.exports.AudioScheduler = class AudioScheduler {
 			return;
 		}
 		let track;
-		if(this.index + 1 >= this.queue.length) {
-			if(!this.autoplayer) {
-				track = await this.autoplayer.getNextTrack(this); 
-				if(!track) {
-					return;
-				}
+		if(this.index < this.queue.length - 1) {
+			this.index++;
+			track = this.queue[this.index];
+		}
+		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
+			track = await this.autoplayer.getNextTrack(this);
+			if(!track) {
+				return;
 			}
 		}
 		else {
-		this.index++;
-		track = this.queue[this.index];
-	}
+			return;
+		}
 		try {
 			const resource = await track.createAudioResource();
 			this.player.play(resource);
@@ -140,13 +141,15 @@ module.exports.AudioScheduler = class AudioScheduler {
 			track.onError(error);
 			await this.processQueue();
 		}
-	this.queueLock = false;
 	}
 
 	async enqueue(track) {
-		this.index = Math.min(this.index, this.queue.length - 1);
 		this.queue.push(track);
 		await this.processQueue();
+	}
+
+	hasNextTrack() {
+		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
 	}
 
 	stop() {
@@ -211,8 +214,12 @@ module.exports.LoopAutoplayer = class LoopAutoplayer {
 	async getNextTrack(scheduler) {
 		if(scheduler.queue.length > 0) {
 			scheduler.index = -1;
-			scheduler.processQueue();
+			await scheduler.processQueue();
 		}
+	}
+
+	hasNextTrack(scheduler) {
+		return scheduler.queue.length > 0;
 	}
 
 };
