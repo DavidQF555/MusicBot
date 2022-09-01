@@ -54,10 +54,12 @@ module.exports.AudioScheduler = class AudioScheduler {
 		});
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
+				this.playing = null;
 				await this.processQueue();
 			}
 			else if (newState.status === AudioPlayerStatus.Playing) {
 				newState.resource.metadata.onStart();
+				this.playing = newState.resource.metadata;
 			}
 		});
 		this.player.on('error', error => error.resource.metadata.onError(error));
@@ -110,7 +112,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 
 	async skip() {
 		this.queueLock = false;
-		const skipped = this.queue[this.index];
+		const skipped = this.playing;
 		this.player.stop(true);
 		await this.processQueue();
 		return skipped;
