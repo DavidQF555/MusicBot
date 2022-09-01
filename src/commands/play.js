@@ -1,11 +1,10 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
 const { AudioScheduler, schedulers } = require('../audio/scheduler.js');
-const AudioTrack = require('../audio/track.js');
 
 const { GuildMember } = require('discord.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
-const { get } = require('@davidqf555/simple-request');
+const { createTrack } = require('../audio/track.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -57,9 +56,3 @@ module.exports = {
 		}
 	},
 };
-
-async function createTrack(query, channel) {
-	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
-	const video = JSON.parse(await get(url)).items[0];
-	return new AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel);
-}

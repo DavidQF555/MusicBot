@@ -29,6 +29,7 @@ module.exports = {
 			return;
 		}
 		scheduler.autoplayer = types[interaction.options.get('type').value];
+		scheduler.autoplay_channel = interaction.channel;
 		await interaction.deferReply();
 		await scheduler.processQueue();
 		await interaction.followUp(createSimpleSuccess('Changed autoplayer'));
