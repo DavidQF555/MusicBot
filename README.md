@@ -28,6 +28,6 @@ This a basic Discord music bot created using [Node.js](https://nodejs.org/) and 
 | queue | Displays the current queue |
 | skip | Skips the current track |
 | clear | Clears the whole queue |
-| loop | Toggles whether the queue should loop |
 | remove | Removes a track from the queue based on the query |
 | shuffle | Randomizes the order of the queue |
+| autoplay | Sets the autoplayer |
