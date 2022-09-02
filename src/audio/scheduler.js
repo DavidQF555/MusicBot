@@ -92,6 +92,9 @@ module.exports.AudioScheduler = class AudioScheduler {
 			track.onError(error);
 			await this.processQueue();
 		}
+		finally {
+			this.queueLock = false;
+		}
 	}
 
 	async enqueue(track) {
