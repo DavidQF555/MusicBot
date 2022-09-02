@@ -4,8 +4,9 @@ const {
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
+const { get } = require('@davidqf555/simple-request');
 
-module.exports = class AudioTrack {
+module.exports.AudioTrack = class AudioTrack {
 
 	constructor(title, url, channel) {
 		this.title = title;
@@ -29,4 +30,10 @@ module.exports = class AudioTrack {
 				.catch(reject);
 		});
 	}
+};
+
+module.exports.createTrack = async function createTrack(query, channel) {
+	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
+	const video = JSON.parse(await get(url)).items[0];
+	return new module.exports.AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel);
 };
