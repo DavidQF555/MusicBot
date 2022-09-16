@@ -1,5 +1,6 @@
 module.exports = {
 	name: 'loop',
+	isSetup: true,
 	autoplayer: {
 		getNextTrack: async function(scheduler) {
 			if(scheduler.queue.length > 0) {

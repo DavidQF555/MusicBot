@@ -6,7 +6,7 @@ const { readdirSync } = require('fs');
 const types = {
 	none: null,
 };
-readdirSync('./src/audio/autoplayers').filter(file => file.endsWith('.js')).map(file => require(`../audio/autoplayers/${file}`)).forEach(data => {
+readdirSync('./src/audio/autoplayers').filter(file => file.endsWith('.js')).map(file => require(`../audio/autoplayers/${file}`)).filter(data => data.isSetup).forEach(data => {
 	types[data.name] = data.autoplayer;
 });
 

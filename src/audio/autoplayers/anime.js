@@ -6,6 +6,7 @@ const maxPerPage = 25;
 
 module.exports = {
 	name: 'anime',
+	isSetup: !!Jikan4,
 	autoplayer: {
 		getNextTrack: async function(scheduler) {
 			let data = [];
