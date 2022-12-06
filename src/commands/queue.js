@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
 const { schedulers } = require('../audio/scheduler.js');
-const { createSimpleFailure } = require('../util.js');
+const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 const { AudioPlayerStatus } = require('@discordjs/voice');
 
 module.exports = {
@@ -14,7 +13,7 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		const message = new MessageEmbed().setTitle('Queue').setColor('#0x00FF00');
+		const message = createSimpleSuccess('Queue');
 		let desc = '';
 		for (let i = 0; i < scheduler.queue.length; i++) {
 			const track = scheduler.queue[i];
