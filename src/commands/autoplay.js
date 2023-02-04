@@ -28,10 +28,11 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;
 		}
-		scheduler.autoplayer = types[interaction.options.get('type').value];
+		const type = interaction.options.get('type').value;
+		scheduler.autoplayer = types[type];
 		scheduler.autoplay_channel = interaction.channel;
 		await interaction.deferReply();
 		await scheduler.processQueue();
-		await interaction.followUp(createSimpleSuccess('Changed autoplayer'));
+		await interaction.followUp(createSimpleSuccess(`Changed autoplayer to \`${type}\``));
 	},
 };
