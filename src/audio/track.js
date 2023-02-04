@@ -1,8 +1,7 @@
 const {
 	createAudioResource,
-	demuxProbe,
 } = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
+const { stream } = require('play-dl');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 const { get } = require('@davidqf555/simple-request');
 
@@ -24,11 +23,8 @@ module.exports.AudioTrack = class AudioTrack {
 	}
 
 	async createAudioResource() {
-		return new Promise((resolve, reject) => {
-			demuxProbe(ytdl(this.url, { filter: 'audio' }))
-				.then(probe => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
-				.catch(reject);
-		});
+		const out = await stream(this.url);
+		return createAudioResource(out.stream, { metadata: this, inputType: out.type });
 	}
 };
 
