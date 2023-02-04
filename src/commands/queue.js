@@ -13,8 +13,7 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		const message = createSimpleSuccess('Queue');
-		let desc = '';
+		let desc = 'Queue\n';
 		for (let i = 0; i < scheduler.queue.length; i++) {
 			const track = scheduler.queue[i];
 			let line = i + 1 + '. [' + track.title.substring(0, 40) + '](' + track.url + ')';
@@ -23,7 +22,6 @@ module.exports = {
 			}
 			desc += line + '\n';
 		}
-		message.setDescription(desc);
-		await interaction.reply({ embeds: [message] });
+		await interaction.reply(createSimpleSuccess(desc));
 	},
 };
