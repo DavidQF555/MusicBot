@@ -18,7 +18,7 @@ module.exports = {
 			await interaction.followUp(createSimpleFailure('At the end of the queue'));
 			return;
 		}
-		const skipped = await scheduler.skip();
+		const skipped = scheduler.skip();
 		await interaction.followUp(createSimpleSuccess(`Skipping [${skipped.title}](${skipped.url})`));
 	},
 };

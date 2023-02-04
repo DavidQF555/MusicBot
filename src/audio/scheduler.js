@@ -113,11 +113,10 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.player.stop(true);
 	}
 
-	async skip() {
+	skip() {
 		this.queueLock = false;
 		const skipped = this.playing;
 		this.player.stop(true);
-		await this.processQueue();
 		return skipped;
 	}
 
@@ -133,7 +132,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.queue.splice(index, 1);
 		if(index <= this.index) {
 			if(this.index == index) {
-				await this.skip();
+				this.skip();
 			}
 			this.index--;
 		}
