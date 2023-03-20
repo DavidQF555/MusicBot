@@ -1,5 +1,5 @@
 const { Jikan4 } = require('node-myanimelist');
-const { createTrack } = require('../../audio/track.js');
+const { searchTrack } = require('../../audio/track.js');
 
 const searchCount = 100;
 const maxPerPage = 25;
@@ -41,7 +41,7 @@ module.exports = {
 					options.push(`${title} opening ${j + 1}`);
 				}
 			}
-			return createTrack(options[Math.floor(Math.random() * options.length)], scheduler.autoplay_channel);
+			return searchTrack(options[Math.floor(Math.random() * options.length)], scheduler.autoplay_channel);
 		},
 		hasNextTrack: () => true,
 	},

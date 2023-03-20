@@ -28,8 +28,14 @@ module.exports.AudioTrack = class AudioTrack {
 	}
 };
 
-module.exports.createTrack = async function createTrack(query, channel) {
+module.exports.searchTrack = async (query, channel) => {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
 	const video = JSON.parse(await get(url)).items[0];
-	return new module.exports.AudioTrack(video.snippet.title, `https://www.youtube.com/watch?v=${video.id.videoId}`, channel);
+	return new module.exports.AudioTrack(video.snippet.title, `https://youtu.be/${video.id.videoId}`, channel);
+};
+
+module.exports.createTrack = async (id, channel) => {
+	const url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${id}&maxResults=1&key=${process.env.YT_DATA_KEY}`;
+	const video = JSON.parse(await get(url)).items[0];
+	return new module.exports.AudioTrack(video.snippet.title, `https://youtu.be/${id}`, channel);
 };
