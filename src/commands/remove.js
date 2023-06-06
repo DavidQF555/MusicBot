@@ -22,7 +22,7 @@ module.exports = {
 		for(let i = 0; i < scheduler.queue.length; i++) {
 			const track = scheduler.queue[i];
 			if(track.title.toLowerCase().includes(query)) {
-				await scheduler.remove(i);
+				scheduler.remove(i);
 				await interaction.followUp(createSimpleSuccess(`Removed [${track.title}](${track.url}) from the queue`));
 				return;
 			}

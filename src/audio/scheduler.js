@@ -128,7 +128,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 		this.index++;
 	}
 
-	async remove(index) {
+	remove(index) {
 		this.queue.splice(index, 1);
 		if(index <= this.index) {
 			if(this.index == index) {
