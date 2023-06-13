@@ -1,6 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice');
-const { AudioScheduler, schedulers } = require('../audio/scheduler.js');
+const { schedulers, enterChannel } = require('../audio/scheduler.js');
 
 const { GuildMember } = require('discord.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
@@ -30,32 +29,23 @@ module.exports = {
 				),
 		),
 	async execute(interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		let scheduler = schedulers.get(interaction.guildId);
 		if(!scheduler) {
 			if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
-				const channel = interaction.member.voice.channel;
-				scheduler = new AudioScheduler(
-					joinVoiceChannel({
-						channelId: channel.id,
-						guildId: channel.guild.id,
-						adapterCreator: channel.guild.voiceAdapterCreator,
-					}),
-				);
-				scheduler.connection.on('error', console.warn);
-				schedulers.set(interaction.guildId, scheduler);
+				scheduler = await enterChannel(interaction.member.voice.channel);
+				if(!scheduler) {
+					await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
+					return;
+				}
 			}
 			else {
 				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
 				return;
 			}
 		}
-		try {
-			await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
-		}
-		catch (error) {
-			console.warn(error);
-			await interaction.followUp(createSimpleFailure('Failed to join voice channel within 20 seconds, please try again later!'));
+		else if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.followUp(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
 		const subcommand = interaction.options.getSubcommand();

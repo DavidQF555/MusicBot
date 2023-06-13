@@ -17,12 +17,16 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
-		interaction.deferReply();
+		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.reply(createSimpleFailure('Must be in the same channel'));
+			return;
+		}
+		await interaction.deferReply({ ephemeral: true });
 		const query = interaction.options.get('query').value.toLowerCase();
 		for(let i = 0; i < scheduler.queue.length; i++) {
 			const track = scheduler.queue[i];
 			if(track.title.toLowerCase().includes(query)) {
-				await scheduler.remove(i);
+				scheduler.remove(i);
 				await interaction.followUp(createSimpleSuccess(`Removed [${track.title}](${track.url}) from the queue`));
 				return;
 			}

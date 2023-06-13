@@ -41,7 +41,7 @@ module.exports = {
 					options.push(`${title} opening ${j + 1}`);
 				}
 			}
-			return searchTrack(options[Math.floor(Math.random() * options.length)], scheduler.autoplay_channel);
+			return await searchTrack(options[Math.floor(Math.random() * options.length)], scheduler.autoplay_channel);
 		},
 		hasNextTrack: () => true,
 	},
