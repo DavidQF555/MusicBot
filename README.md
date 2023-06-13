@@ -37,3 +37,4 @@ If Node.js and npm are already installed, skip this step. If not, follow these [
 | remove | Removes a track from the queue based on the query |
 | shuffle | Randomizes the order of the queue |
 | autoplay | Sets the autoplayer |
+| leave | Tells this bot to leave the voice channel |
