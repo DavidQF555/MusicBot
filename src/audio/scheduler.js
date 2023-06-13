@@ -4,12 +4,33 @@ const {
 	entersState,
 	VoiceConnectionDisconnectReason,
 	VoiceConnectionStatus,
+	joinVoiceChannel,
 } = require('@discordjs/voice');
 const { promisify } = require('util');
 const wait = promisify(setTimeout);
 
 
 module.exports.schedulers = new Map();
+
+module.exports.enterChannel = async (channel) => {
+	const scheduler = new module.exports.AudioScheduler(
+		joinVoiceChannel({
+			channelId: channel.id,
+			guildId: channel.guild.id,
+			adapterCreator: channel.guild.voiceAdapterCreator,
+		}),
+	);
+	scheduler.connection.on('error', console.warn);
+	module.exports.schedulers.set(channel.guildId, scheduler);
+	try {
+		await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
+	}
+	catch (error) {
+		console.warn(error);
+		return;
+	}
+	return scheduler;
+};
 
 module.exports.AudioScheduler = class AudioScheduler {
 

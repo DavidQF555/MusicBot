@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const{ schedulers } = require('../audio/scheduler.js');
+const{ schedulers, enterChannel } = require('../audio/scheduler.js');
 const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
 const { readdirSync } = require('fs');
 
@@ -23,19 +23,26 @@ module.exports = {
 				})),
 		),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		await interaction.deferReply();
+		let scheduler = schedulers.get(interaction.guildId);
 		if(!scheduler) {
-			await interaction.reply(createSimpleFailure('Not currently playing'));
-			return;
+			if(!interaction.member.voice.channel) {
+				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
+				return;
+			}
+			scheduler = await enterChannel(interaction.member.voice.channel);
+			if(!scheduler) {
+				await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
+				return;
+			}
 		}
-		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
-			await interaction.reply(createSimpleFailure('Must be in the same channel'));
+		else if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.followUp(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
 		const type = interaction.options.get('type').value;
 		scheduler.autoplayer = types[type];
 		scheduler.autoplay_channel = interaction.channel;
-		await interaction.deferReply();
 		await scheduler.processQueue();
 		await interaction.followUp(createSimpleSuccess(`Changed autoplayer to \`${type}\``));
 	},
