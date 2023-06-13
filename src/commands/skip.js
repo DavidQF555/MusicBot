@@ -9,8 +9,12 @@ module.exports = {
 		.setDescription('Skips the current song'),
 	async execute(interaction) {
 		const scheduler = schedulers.get(interaction.guildId);
-		if(!scheduler || scheduler.queue.length == 0) {
-			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
+		if(!scheduler) {
+			await interaction.reply(createSimpleFailure('Not currently playing'));
+			return;
+		}
+		if(scheduler.index >= scheduler.length && (!scheduler.autoplayer || !scheduler.autoplayer.hasNextTrack())) {
+			await interaction.reply(createSimpleFailure('Nothing is currently queued and cannot autoplay'));
 			return;
 		}
 		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
