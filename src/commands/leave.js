@@ -12,6 +12,10 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('I am not currently in a channel'));
 			return;
 		}
+		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.reply(createSimpleFailure('Must be in the same channel'));
+			return;
+		}
 		scheduler.connection.destroy();
 		await interaction.reply(createSimpleSuccess('Successfully left the channel'));
 	},

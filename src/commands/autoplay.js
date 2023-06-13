@@ -28,6 +28,10 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;
 		}
+		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.reply(createSimpleFailure('Must be in the same channel'));
+			return;
+		}
 		const type = interaction.options.get('type').value;
 		scheduler.autoplayer = types[type];
 		scheduler.autoplay_channel = interaction.channel;

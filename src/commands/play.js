@@ -50,6 +50,10 @@ module.exports = {
 				return;
 			}
 		}
+		else if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.followUp(createSimpleFailure('Must be in the same channel'));
+			return;
+		}
 		try {
 			await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
 		}

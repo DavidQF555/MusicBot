@@ -17,6 +17,10 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}
+		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.reply(createSimpleFailure('Must be in the same channel'));
+			return;
+		}
 		interaction.deferReply();
 		const query = interaction.options.get('query').value.toLowerCase();
 		for(let i = 0; i < scheduler.queue.length; i++) {
