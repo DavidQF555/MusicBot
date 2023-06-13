@@ -21,7 +21,7 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
-		interaction.deferReply();
+		await interaction.deferReply();
 		const query = interaction.options.get('query').value.toLowerCase();
 		for(let i = 0; i < scheduler.queue.length; i++) {
 			const track = scheduler.queue[i];
