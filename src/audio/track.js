@@ -14,12 +14,12 @@ module.exports.AudioTrack = class AudioTrack {
 	}
 
 	onStart() {
-		this.channel.send(createSimpleSuccess(`Now playing [${this.title}](${this.url})`)).catch(console.warn);
+		this.channel.send(createSimpleSuccess(`Now playing [${this.title}](${this.url})`, false)).catch(console.warn);
 	}
 
 	onError(error) {
 		console.warn(error);
-		this.channel.send(createSimpleFailure(`Error: ${error.message}`)).catch(console.warn);
+		this.channel.send(createSimpleFailure(`Error: ${error.message}`, false)).catch(console.warn);
 	}
 
 	async createAudioResource() {

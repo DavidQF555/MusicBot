@@ -23,7 +23,7 @@ module.exports = {
 				})),
 		),
 	async execute(interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		let scheduler = schedulers.get(interaction.guildId);
 		if(!scheduler) {
 			if(!interaction.member.voice.channel) {
