@@ -13,10 +13,6 @@ module.exports = {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;
 		}
-		if(scheduler.index >= scheduler.length && (!scheduler.autoplayer || !scheduler.autoplayer.hasNextTrack())) {
-			await interaction.reply(createSimpleFailure('Nothing is currently queued and cannot autoplay'));
-			return;
-		}
 		if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
 			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
