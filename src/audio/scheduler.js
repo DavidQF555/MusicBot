@@ -18,7 +18,7 @@ module.exports.enterChannel = async (channel) => {
 			channelId: channel.id,
 			guildId: channel.guild.id,
 			adapterCreator: channel.guild.voiceAdapterCreator,
-		}),
+		}), channel.guild.id,
 	);
 	scheduler.connection.on('error', console.warn);
 	module.exports.schedulers.set(channel.guildId, scheduler);
@@ -34,8 +34,9 @@ module.exports.enterChannel = async (channel) => {
 
 module.exports.AudioScheduler = class AudioScheduler {
 
-	constructor(connection) {
+	constructor(connection, guildId) {
 		this.connection = connection;
+		this.guildId = guildId;
 		this.player = createAudioPlayer();
 		this.queue = [];
 		this.index = -1;
@@ -59,6 +60,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 			}
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
+				module.exports.schedulers.delete(this.guildId);
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
