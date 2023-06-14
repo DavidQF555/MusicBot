@@ -1,21 +1,20 @@
 import 'dotenv/config';
 import { REST } from '@discordjs/rest';
 import { Client, Collection, IntentsBitField } from 'discord.js';
-import { readdirSync } from 'fs';
 import { Routes } from 'discord-api-types/v9';
+import baseCommands from './commands.js';
 
 const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildVoiceStates] });
-const commands = new Collection();
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
-const files = readdirSync('./src/commands').filter(file => file.endsWith('.js')).map(file => require(`./commands/${file}`));
-for (const file of files) {
-	commands.set(file.data.name, file);
+const commands = new Collection();
+for (const command of baseCommands) {
+	commands.set(command.data.name, command);
 }
 try {
-	rest.put(
+	await rest.put(
 		Routes.applicationCommands(process.env.CLIENT_ID),
-		{ body: files.map(file => file.data.toJSON()) },
+		{ body: commands.map(file => file.data.toJSON()) },
 	);
 	console.log('Successfully registered application commands.');
 }

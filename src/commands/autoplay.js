@@ -1,12 +1,12 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { schedulers, enterChannel } from '../audio/scheduler.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
-import { readdirSync } from 'fs';
+import autoplayers from '../audio/autoplayers.js';
 
 const types = {
 	none: null,
 };
-readdirSync('./src/audio/autoplayers').filter(file => file.endsWith('.js')).map(file => require(`../audio/autoplayers/${file}`)).filter(data => data.isSetup).forEach(data => {
+autoplayers.forEach(data => {
 	types[data.name] = data.autoplayer;
 });
 
