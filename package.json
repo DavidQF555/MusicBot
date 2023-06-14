@@ -1,23 +1,24 @@
 {
   "name": "musicbot",
   "version": "1.3.1",
-  "main": "bot.js",
-  "scripts": {
-    "start": "node src/bot.js"
-  },
-  "engines": {
-    "node": "16.x"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DavidQF555/MusicBot.git"
-  },
   "author": "DavidQF555",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/DavidQF555/MusicBot",
   "bugs": {
     "url": "https://github.com/DavidQF555/MusicBot/issues"
   },
-  "homepage": "https://github.com/DavidQF555/MusicBot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidQF555/MusicBot.git"
+  },
+  "main": "src/bot.js",
+  "engines": {
+    "node": ">=16.9.0",
+    "npm":">=7.0.0"
+  },
+  "scripts": {
+    "start": "node src/bot.js"
+  },
   "dependencies": {
     "@davidqf555/simple-request": "^1.0.11",
     "@discordjs/builders": "^1.6.3",
