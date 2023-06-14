@@ -1,9 +1,9 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { AudioPlayerStatus } = require('@discordjs/voice');
-const { schedulers } = require('../audio/scheduler.js');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { AudioPlayerStatus } from '@discordjs/voice';
+import { schedulers } from '../audio/scheduler.js';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('skip')
 		.setDescription('Skips the current song'),

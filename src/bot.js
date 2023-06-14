@@ -1,8 +1,8 @@
-require('dotenv').config();
-const { REST } = require('@discordjs/rest');
-const { Client, Collection, IntentsBitField } = require('discord.js');
-const { readdirSync } = require('fs');
-const { Routes } = require('discord-api-types/v9');
+import 'dotenv/config';
+import { REST } from '@discordjs/rest';
+import { Client, Collection, IntentsBitField } from 'discord.js';
+import { readdirSync } from 'fs';
+import { Routes } from 'discord-api-types/v9';
 
 const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildVoiceStates] });
 const commands = new Collection();

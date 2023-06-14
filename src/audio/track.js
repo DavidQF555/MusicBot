@@ -1,11 +1,9 @@
-const {
-	createAudioResource,
-} = require('@discordjs/voice');
-const { stream } = require('play-dl');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
-const { get } = require('@davidqf555/simple-request');
+import { createAudioResource } from '@discordjs/voice';
+import { stream } from 'play-dl';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { get } from '@davidqf555/simple-request';
 
-module.exports.AudioTrack = class AudioTrack {
+export class AudioTrack {
 
 	constructor(title, url, channel) {
 		this.title = title;
@@ -26,16 +24,16 @@ module.exports.AudioTrack = class AudioTrack {
 		const out = await stream(this.url);
 		return createAudioResource(out.stream, { metadata: this, inputType: out.type });
 	}
-};
+}
 
-module.exports.searchTrack = async (query, channel) => {
+export async function searchTrack(query, channel) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
 	const video = JSON.parse(await get(url)).items[0];
-	return new module.exports.AudioTrack(video.snippet.title, `https://youtu.be/${video.id.videoId}`, channel);
-};
+	return new AudioTrack(video.snippet.title, `https://youtu.be/${video.id.videoId}`, channel);
+}
 
-module.exports.createTrack = async (id, channel) => {
+export async function createTrack(id, channel) {
 	const url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${id}&maxResults=1&key=${process.env.YT_DATA_KEY}`;
 	const video = JSON.parse(await get(url)).items[0];
-	return new module.exports.AudioTrack(video.snippet.title, `https://youtu.be/${id}`, channel);
-};
+	return new AudioTrack(video.snippet.title, `https://youtu.be/${id}`, channel);
+}

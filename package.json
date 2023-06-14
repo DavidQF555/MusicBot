@@ -11,6 +11,7 @@
     "type": "git",
     "url": "https://github.com/DavidQF555/MusicBot.git"
   },
+  "type": "module",
   "main": "src/bot.js",
   "engines": {
     "node": ">=16.9.0",
