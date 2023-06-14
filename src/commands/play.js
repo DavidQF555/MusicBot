@@ -64,6 +64,7 @@ export default {
 			else {
 				track = await searchTrack(interaction.options.getString('query'), interaction.channel);
 			}
+			scheduler.channel = interaction.channel;
 			await scheduler.enqueue(track);
 			await interaction.followUp(createSimpleSuccess(`Enqueued [${track.title}](${track.url})`));
 		}

@@ -18,7 +18,7 @@ export async function enterChannel(channel) {
 			channelId: channel.id,
 			guildId: channel.guild.id,
 			adapterCreator: channel.guild.voiceAdapterCreator,
-		}), channel.guild.id,
+		}), channel,
 	);
 	scheduler.connection.on('error', console.warn);
 	schedulers.set(channel.guildId, scheduler);
@@ -34,9 +34,9 @@ export async function enterChannel(channel) {
 
 export class AudioScheduler {
 
-	constructor(connection, guildId) {
+	constructor(connection, channel) {
 		this.connection = connection;
-		this.guildId = guildId;
+		this.channel = channel;
 		this.player = createAudioPlayer();
 		this.queue = [];
 		this.index = -1;
@@ -60,7 +60,10 @@ export class AudioScheduler {
 			}
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
-				schedulers.delete(this.guildId);
+				if(this.message) {
+					this.message.delete();
+				}
+				schedulers.delete(this.channel.guild.id);
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
@@ -78,14 +81,18 @@ export class AudioScheduler {
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
 				this.playing = null;
+				if(this.message) {
+					this.message.delete();
+					this.message = null;
+				}
 				await this.processQueue();
 			}
 			else if (newState.status === AudioPlayerStatus.Playing) {
-				newState.resource.metadata.onStart();
 				this.playing = newState.resource.metadata;
+				this.message = await this.channel.send(newState.resource.metadata.getStartMessage());
 			}
 		});
-		this.player.on('error', error => error.resource.metadata.onError(error));
+		this.player.on('error', console.log);
 		this.connection.subscribe(this.player);
 	}
 

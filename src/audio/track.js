@@ -1,23 +1,17 @@
 import { createAudioResource } from '@discordjs/voice';
 import { stream } from 'play-dl';
-import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { createSimpleSuccess } from '../util.js';
 import { get } from '@davidqf555/simple-request';
 
 export class AudioTrack {
 
-	constructor(title, url, channel) {
+	constructor(title, url) {
 		this.title = title;
 		this.url = url;
-		this.channel = channel;
 	}
 
-	onStart() {
-		this.channel.send(createSimpleSuccess(`Now playing [${this.title}](${this.url})`, false)).catch(console.warn);
-	}
-
-	onError(error) {
-		console.warn(error);
-		this.channel.send(createSimpleFailure(`Error: ${error.message}`, false)).catch(console.warn);
+	getStartMessage() {
+		return createSimpleSuccess(`Playing [${this.title}](${this.url})`, false);
 	}
 
 	async createAudioResource() {
