@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { REST } from '@discordjs/rest';
 import { Client, Collection, IntentsBitField } from 'discord.js';
 import { Routes } from 'discord-api-types/v9';
+import { createSimpleFailure } from './util.js';
 import baseCommands from './commands.js';
 
 const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildVoiceStates] });
@@ -43,8 +44,8 @@ async function handleCommand(interaction) {
 	catch (error) {
 		console.error(error);
 		if(!interaction.deferred) {
-			await interaction.deferReply();
+			await interaction.deferReply({ ephemeral:true });
 		}
-		await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+		await interaction.followUp(createSimpleFailure('There was an error while executing this command!'));
 	}
 }
