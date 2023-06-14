@@ -1,12 +1,12 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { schedulers, enterChannel } = require('../audio/scheduler.js');
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { schedulers, enterChannel } from '../audio/scheduler.js';
 
-const { GuildMember } = require('discord.js');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
-const { searchTrack, createTrack } = require('../audio/track.js');
-const getYouTubeID = require('get-youtube-id');
+import { GuildMember } from 'discord.js';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { searchTrack, createTrack } from '../audio/track.js';
+import getYouTubeID from 'get-youtube-id';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('play')
 		.setDescription('Queues a song')

@@ -1,19 +1,19 @@
-const {
+import {
 	AudioPlayerStatus,
 	createAudioPlayer,
 	entersState,
 	VoiceConnectionDisconnectReason,
 	VoiceConnectionStatus,
 	joinVoiceChannel,
-} = require('@discordjs/voice');
-const { promisify } = require('util');
+} from '@discordjs/voice';
+import { promisify } from 'util';
 const wait = promisify(setTimeout);
 
 
-module.exports.schedulers = new Map();
+export const schedulers = new Map();
 
-module.exports.enterChannel = async (channel) => {
-	const scheduler = new module.exports.AudioScheduler(
+export async function enterChannel(channel) {
+	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
 			channelId: channel.id,
 			guildId: channel.guild.id,
@@ -21,7 +21,7 @@ module.exports.enterChannel = async (channel) => {
 		}), channel.guild.id,
 	);
 	scheduler.connection.on('error', console.warn);
-	module.exports.schedulers.set(channel.guildId, scheduler);
+	schedulers.set(channel.guildId, scheduler);
 	try {
 		await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
 	}
@@ -30,9 +30,9 @@ module.exports.enterChannel = async (channel) => {
 		return;
 	}
 	return scheduler;
-};
+}
 
-module.exports.AudioScheduler = class AudioScheduler {
+export class AudioScheduler {
 
 	constructor(connection, guildId) {
 		this.connection = connection;
@@ -60,7 +60,7 @@ module.exports.AudioScheduler = class AudioScheduler {
 			}
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
-				module.exports.schedulers.delete(this.guildId);
+				schedulers.delete(this.guildId);
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
@@ -183,4 +183,4 @@ module.exports.AudioScheduler = class AudioScheduler {
 		}
 	}
 
-};
+}

@@ -1,8 +1,8 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const{ schedulers } = require('../audio/scheduler.js');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { schedulers } from '../audio/scheduler.js';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('clear')
 		.setDescription('Clears the queue'),

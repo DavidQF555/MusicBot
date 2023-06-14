@@ -1,16 +1,16 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const{ schedulers, enterChannel } = require('../audio/scheduler.js');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
-const { readdirSync } = require('fs');
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { schedulers, enterChannel } from '../audio/scheduler.js';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import autoplayers from '../audio/autoplayers.js';
 
 const types = {
 	none: null,
 };
-readdirSync('./src/audio/autoplayers').filter(file => file.endsWith('.js')).map(file => require(`../audio/autoplayers/${file}`)).filter(data => data.isSetup).forEach(data => {
+autoplayers.forEach(data => {
 	types[data.name] = data.autoplayer;
 });
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('autoplay')
 		.setDescription('Sets the autoplayer type')

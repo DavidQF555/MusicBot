@@ -1,9 +1,9 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { schedulers } = require('../audio/scheduler.js');
-const { createSimpleFailure, createSimpleSuccess } = require('../util.js');
-const { AudioPlayerStatus } = require('@discordjs/voice');
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { schedulers } from '../audio/scheduler.js';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { AudioPlayerStatus } from '@discordjs/voice';
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('queue')
 		.setDescription('Displays the queued tracks'),

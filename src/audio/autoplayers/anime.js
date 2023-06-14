@@ -1,10 +1,10 @@
-const { Jikan4 } = require('node-myanimelist');
-const { searchTrack } = require('../../audio/track.js');
+import { Jikan4 } from 'node-myanimelist';
+import { searchTrack } from '../../audio/track.js';
 
 const searchCount = 100;
 const maxPerPage = 25;
 
-module.exports = {
+export default {
 	name: 'anime',
 	isSetup: !!Jikan4,
 	autoplayer: {
