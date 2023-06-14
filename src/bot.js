@@ -8,21 +8,32 @@ const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitFi
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
 const commands = new Collection();
-for (const command of baseCommands) {
-	commands.set(command.data.name, command);
-}
-try {
-	await rest.put(
-		Routes.applicationCommands(process.env.CLIENT_ID),
-		{ body: commands.map(file => file.data.toJSON()) },
-	);
-	console.log('Successfully registered application commands.');
-}
-catch (error) {
-	console.error(error);
+await registerCommands();
+
+client.on('interactionCreate', handleCommand);
+client.once('ready', () => {
+	console.log('Ready!');
+});
+
+client.login(process.env.TOKEN);
+
+async function registerCommands() {
+	for (const command of baseCommands) {
+		commands.set(command.data.name, command);
+	}
+	try {
+		await rest.put(
+			Routes.applicationCommands(process.env.CLIENT_ID),
+			{ body: commands.map(file => file.data.toJSON()) },
+		);
+		console.log('Successfully registered application commands.');
+	}
+	catch (error) {
+		console.error(error);
+	}
 }
 
-client.on('interactionCreate', async (interaction) => {
+async function handleCommand(interaction) {
 	if (!interaction.isCommand()) return;
 	const command = commands.get(interaction.commandName);
 	if (!command) return;
@@ -36,10 +47,4 @@ client.on('interactionCreate', async (interaction) => {
 		}
 		await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
-});
-
-client.once('ready', () => {
-	console.log('Ready!');
-});
-
-client.login(process.env.TOKEN);
+}
