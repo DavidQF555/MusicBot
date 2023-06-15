@@ -125,7 +125,7 @@ export class AudioScheduler {
 
 	resetMessage() {
 		if(this.message) {
-			this.message.delete;
+			this.message.delete();
 			this.message = null;
 		}
 	}
