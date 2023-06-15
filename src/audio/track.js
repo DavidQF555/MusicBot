@@ -30,3 +30,9 @@ export async function createTrack(id, channel) {
 	const video = JSON.parse(await get(url)).items[0];
 	return new AudioTrack(video.snippet.title, `https://youtu.be/${id}`, channel);
 }
+
+export async function createTracksFromPlaylist(id, channel) {
+	const url = `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${id}&key=${process.env.YT_DATA_KEY}`;
+	const playlist = JSON.parse(await get(url)).items.map(item => new AudioTrack(item.snippet.title, `https://youtu.be/${item.snippet.resourceId.videoId}`, channel));
+	return playlist;
+}
