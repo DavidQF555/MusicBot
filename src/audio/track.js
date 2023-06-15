@@ -1,6 +1,5 @@
 import { createAudioResource } from '@discordjs/voice';
 import { stream } from 'play-dl';
-import { createSimpleSuccess } from '../util.js';
 import { get } from '@davidqf555/simple-request';
 
 export class AudioTrack {
@@ -10,8 +9,8 @@ export class AudioTrack {
 		this.url = url;
 	}
 
-	getStartMessage() {
-		return createSimpleSuccess(`Playing [${this.title}](${this.url})`, false);
+	getStartText() {
+		return `Playing [${this.title}](${this.url})`;
 	}
 
 	async createAudioResource() {
