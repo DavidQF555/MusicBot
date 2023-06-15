@@ -7,6 +7,9 @@ import {
 	joinVoiceChannel,
 } from '@discordjs/voice';
 import { promisify } from 'util';
+import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
+import { ButtonStyle, ComponentType } from 'discord.js';
 const wait = promisify(setTimeout);
 
 
@@ -85,7 +88,7 @@ export class AudioScheduler {
 			else if (newState.status === AudioPlayerStatus.Playing) {
 				this.playing = newState.resource.metadata;
 				this.resetMessage();
-				this.message = await this.channel.send(newState.resource.metadata.getStartMessage());
+				this.message = await this.sendMessage(newState.resource.metadata.getStartText());
 			}
 		});
 		this.player.on('error', console.log);
@@ -133,6 +136,28 @@ export class AudioScheduler {
 	async enqueue(track) {
 		this.queue.push(track);
 		await this.processQueue();
+	}
+
+	async sendMessage(text) {
+		const message = createSimpleSuccess(text, false);
+		const skip = new ButtonBuilder()
+			.setLabel('Skip')
+			.setCustomId('skip')
+			.setStyle(ButtonStyle.Danger);
+		message.components = [new ActionRowBuilder().addComponents(skip)];
+		const response = await this.channel.send(message);
+		const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button });
+		collector.on('collect', async interaction => {
+			if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+				await interaction.reply(createSimpleFailure('Must be in the same channel'));
+				return;
+			}
+			if(this.hasNextTrack() || this.player.state.status !== AudioPlayerStatus.Idle || this.queueLock) {
+				const skipped = this.skip();
+				await interaction.reply(createSimpleSuccess(`Successfully skipped [${skipped.title}](${skipped.url})`));
+			}
+		});
+		return response;
 	}
 
 	hasNextTrack() {
