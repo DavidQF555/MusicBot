@@ -60,9 +60,7 @@ export class AudioScheduler {
 			}
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
-				if(this.message) {
-					this.message.delete();
-				}
+				this.resetMessage();
 				schedulers.delete(this.channel.guild.id);
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
@@ -81,14 +79,12 @@ export class AudioScheduler {
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
 				this.playing = null;
-				if(this.message) {
-					this.message.delete();
-					this.message = null;
-				}
+				this.resetMessage();
 				await this.processQueue();
 			}
 			else if (newState.status === AudioPlayerStatus.Playing) {
 				this.playing = newState.resource.metadata;
+				this.resetMessage();
 				this.message = await this.channel.send(newState.resource.metadata.getStartMessage());
 			}
 		});
@@ -124,6 +120,13 @@ export class AudioScheduler {
 		}
 		finally {
 			this.queueLock = false;
+		}
+	}
+
+	resetMessage() {
+		if(this.message) {
+			this.message.delete;
+			this.message = null;
 		}
 	}
 
