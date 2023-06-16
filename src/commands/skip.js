@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { schedulers } from '../audio/scheduler.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';

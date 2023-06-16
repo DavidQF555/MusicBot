@@ -1,7 +1,5 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder, GuildMember } from 'discord.js';
 import { schedulers, enterChannel } from '../audio/scheduler.js';
-
-import { GuildMember } from 'discord.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { searchTrack, createTrack } from '../audio/track.js';
 import getYouTubeID from 'get-youtube-id';

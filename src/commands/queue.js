@@ -1,8 +1,12 @@
-import { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder } from '@discordjs/builders';
+import {
+	SlashCommandBuilder,
+	ButtonBuilder,
+	ActionRowBuilder,
+	ButtonStyle,
+	ComponentType } from 'discord.js';
 import { schedulers } from '../audio/scheduler.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { ButtonStyle, ComponentType } from 'discord.js';
 
 const MAX_PER_PAGE = 10;
 const MAX_LENGTH = 40;

@@ -8,8 +8,7 @@ import {
 } from '@discordjs/voice';
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
-import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
-import { ButtonStyle, ComponentType } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
 const wait = promisify(setTimeout);
 
 
