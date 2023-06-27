@@ -29,7 +29,7 @@ export async function enterChannel(channel) {
 		console.warn(error);
 		return;
 	}
-	schedulers.set(channel.guildId, scheduler);
+	schedulers[channel.guildId] = scheduler;
 	return scheduler;
 }
 
@@ -61,7 +61,7 @@ export class AudioScheduler {
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
 				this.resetMessage();
-				schedulers.delete(this.channel.guild.id);
+				schedulers[this.channel.guild.id] = null;
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
@@ -93,10 +93,10 @@ export class AudioScheduler {
 	}
 
 	get index() {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		const data = guildData.get(this.channel.guildId);
+		const data = guildData[this.channel.guildId];
 		if(!data.index && data.index !== 0) {
 			data.index = -1;
 		}
@@ -104,17 +104,17 @@ export class AudioScheduler {
 	}
 
 	set index(index) {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		guildData.get(this.channel.guildId).index = index;
+		guildData[this.channel.guildId].index = index;
 	}
 
 	get queue() {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		const data = guildData.get(this.channel.guildId);
+		const data = guildData[this.channel.guildId];
 		if(!data.queue) {
 			data.queue = [];
 		}
@@ -122,38 +122,38 @@ export class AudioScheduler {
 	}
 
 	set queue(queue) {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		guildData.get(this.channel.guildId).queue = queue;
+		guildData[this.channel.guildId].queue = queue;
 	}
 
 	get message() {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		return guildData.get(this.channel.guildId).message;
+		return guildData[this.channel.guildId].message;
 	}
 
 	set message(message) {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		guildData.get(this.channel.guildId).message = message;
+		guildData[this.channel.guildId].message = message;
 	}
 
 	get autoplayer() {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		return guildData.get(this.channel.guildId).autoplayer;
+		return guildData[this.channel.guildId].autoplayer;
 	}
 
 	set autoplayer(autoplayer) {
-		if(!guildData.has(this.channel.guildId)) {
-			guildData.set(this.channel.guildId, {});
+		if(!guildData[this.channel.guildId]) {
+			guildData[this.channel.guildId] = {};
 		}
-		guildData.get(this.channel.guildId).autoplayer = autoplayer;
+		guildData[this.channel.guildId].autoplayer = autoplayer;
 	}
 
 	async processQueue() {

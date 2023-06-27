@@ -7,7 +7,7 @@ export default {
 		.setName('shuffle')
 		.setDescription('Shuffles the queue'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		const scheduler = schedulers[interaction.guildId];
 		if(!scheduler || scheduler.queue.length == 0) {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;

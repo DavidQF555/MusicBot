@@ -8,7 +8,7 @@ export default {
 		.setName('skip')
 		.setDescription('Skips the current song'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		const scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;

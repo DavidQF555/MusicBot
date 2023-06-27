@@ -7,7 +7,7 @@ export default {
 		.setName('clear')
 		.setDescription('Clears the queue'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		const scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;

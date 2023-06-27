@@ -25,7 +25,7 @@ export default {
 		),
 	async execute(interaction) {
 		await interaction.deferReply({ ephemeral: true });
-		let scheduler = schedulers.get(interaction.guildId);
+		let scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			if(!interaction.member.voice.channel) {
 				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));

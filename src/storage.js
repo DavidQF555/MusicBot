@@ -1,3 +1,3 @@
-export const schedulers = new Map();
+export const schedulers = {};
 
-export const guildData = new Map();
+export const guildData = {};

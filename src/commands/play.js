@@ -29,7 +29,7 @@ export default {
 		),
 	async execute(interaction) {
 		await interaction.deferReply({ ephemeral: true });
-		let scheduler = schedulers.get(interaction.guildId);
+		let scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
 				scheduler = await enterChannel(interaction.member.voice.channel);

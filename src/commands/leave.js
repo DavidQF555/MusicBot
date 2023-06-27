@@ -7,7 +7,7 @@ export default {
 		.setName('leave')
 		.setDescription('Tells bot to leave current channel'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		const scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			await interaction.reply(createSimpleFailure('I am not currently in a channel'));
 			return;
