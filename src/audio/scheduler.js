@@ -148,7 +148,6 @@ export class AudioScheduler {
 			this.player.play(resource);
 		}
 		catch (error) {
-			track.onError(error);
 			await this.processQueue();
 		}
 		finally {
