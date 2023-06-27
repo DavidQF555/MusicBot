@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, GuildMember } from 'discord.js';
-import { schedulers, enterChannel } from '../audio/scheduler.js';
+import { enterChannel } from '../audio/scheduler.js';
+import { schedulers } from '../storage.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { searchTrack, createTrack } from '../audio/track.js';
 import getYouTubeID from 'get-youtube-id';
@@ -36,6 +37,7 @@ export default {
 					await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
 					return;
 				}
+				scheduler.index = scheduler.getQueue().length - 1;
 			}
 			else {
 				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));

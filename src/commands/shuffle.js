@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { schedulers } from '../audio/scheduler.js';
+import { schedulers } from '../storage.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
 export default {
@@ -8,7 +8,7 @@ export default {
 		.setDescription('Shuffles the queue'),
 	async execute(interaction) {
 		const scheduler = schedulers.get(interaction.guildId);
-		if(!scheduler || scheduler.queue.length == 0) {
+		if(!scheduler || scheduler.getQueue().length == 0) {
 			await interaction.reply(createSimpleFailure('Nothing is currently queued'));
 			return;
 		}

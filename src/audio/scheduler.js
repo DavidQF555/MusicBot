@@ -9,21 +9,19 @@ import {
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
+import { schedulers, queues } from '../storage.js';
 const wait = promisify(setTimeout);
 
-
-export const schedulers = new Map();
 
 export async function enterChannel(channel) {
 	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
 			channelId: channel.id,
-			guildId: channel.guild.id,
+			guildId: channel.guildId,
 			adapterCreator: channel.guild.voiceAdapterCreator,
 		}), channel,
 	);
 	scheduler.connection.on('error', console.warn);
-	schedulers.set(channel.guildId, scheduler);
 	try {
 		await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
 	}
@@ -31,6 +29,7 @@ export async function enterChannel(channel) {
 		console.warn(error);
 		return;
 	}
+	schedulers.set(channel.guildId, scheduler);
 	return scheduler;
 }
 
@@ -40,7 +39,6 @@ export class AudioScheduler {
 		this.connection = connection;
 		this.channel = channel;
 		this.player = createAudioPlayer();
-		this.queue = [];
 		this.index = -1;
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
@@ -94,14 +92,22 @@ export class AudioScheduler {
 		this.connection.subscribe(this.player);
 	}
 
+	getQueue() {
+		if(!queues.has(this.channel.guildId)) {
+			queues.set(this.channel.guildId, []);
+		}
+		return queues.get(this.channel.guildId);
+	}
+
 	async processQueue() {
 		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
 			return;
 		}
+		const queue = this.getQueue();
 		let track;
-		if(this.index < this.queue.length - 1) {
+		if(this.index < queue.length - 1) {
 			this.index++;
-			track = this.queue[this.index];
+			track = queue[this.index];
 		}
 		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
 			track = await this.autoplayer.getNextTrack(this);
@@ -133,7 +139,7 @@ export class AudioScheduler {
 	}
 
 	async enqueue(track) {
-		this.queue.push(track);
+		this.getQueue().push(track);
 		await this.processQueue();
 	}
 
@@ -160,12 +166,11 @@ export class AudioScheduler {
 	}
 
 	hasNextTrack() {
-		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
+		return this.index < this.getQueue().length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
 	}
 
 	stop() {
 		this.queueLock = true;
-		this.queue = [];
 		this.index = -1;
 		this.player.stop(true);
 	}
@@ -175,14 +180,6 @@ export class AudioScheduler {
 		const skipped = this.playing;
 		this.player.stop(true);
 		return skipped;
-	}
-
-	nextIndex() {
-		if(this.loop && this.index >= this.queue.length - 1) {
-			this.index = 0;
-			return;
-		}
-		this.index++;
 	}
 
 	remove(index) {
@@ -198,16 +195,17 @@ export class AudioScheduler {
 	clear() {
 		this.queueLock = false;
 		this.index = 0;
-		this.queue = [];
+		queues.set(this.channel.guildId, []);
 		this.player.stop(true);
 	}
 
 	shuffle() {
-		let current = this.queue.length, random;
+		const queue = this.getQueue();
+		let current = queue.length, random;
 		while (current != 0) {
 			random = Math.floor(Math.random() * current);
 			current--;
-			[this.queue[current], this.queue[random]] = [this.queue[random], this.queue[current]];
+			[queue[current], queue[random]] = [queue[random], queue[current]];
 			if(current == this.index) {
 				this.index = random;
 			}
