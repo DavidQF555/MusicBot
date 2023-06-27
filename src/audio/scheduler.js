@@ -9,7 +9,7 @@ import {
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import { schedulers, guildData } from '../storage.js';
+import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, setMessage, getAutoplayer, setAutoplayer } from '../storage.js';
 const wait = promisify(setTimeout);
 
 
@@ -97,67 +97,31 @@ export class AudioScheduler {
 	}
 
 	get index() {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		const data = guildData[this.channel.guildId];
-		if(!data.index && data.index !== 0) {
-			data.index = -1;
-		}
-		return data.index;
+		return getCurrentIndex(this.channel.guildId);
 	}
 
 	set index(index) {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		guildData[this.channel.guildId].index = index;
+		setCurrentIndex(this.channel.guildId, index);
 	}
 
 	get queue() {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		const data = guildData[this.channel.guildId];
-		if(!data.queue) {
-			data.queue = [];
-		}
-		return data.queue;
-	}
-
-	set queue(queue) {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		guildData[this.channel.guildId].queue = queue;
+		return getQueue(this.channel.guildId);
 	}
 
 	get message() {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		return guildData[this.channel.guildId].message;
+		return getMessage(this.channel.guildId);
 	}
 
 	set message(message) {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		guildData[this.channel.guildId].message = message;
+		setMessage(this.channel.guildId, message);
 	}
 
 	get autoplayer() {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		return guildData[this.channel.guildId].autoplayer;
+		return getAutoplayer(this.channel.guildId);
 	}
 
 	set autoplayer(autoplayer) {
-		if(!guildData[this.channel.guildId]) {
-			guildData[this.channel.guildId] = {};
-		}
-		guildData[this.channel.guildId].autoplayer = autoplayer;
+		setAutoplayer(this.channel.guildId, autoplayer);
 	}
 
 	async processQueue() {
@@ -232,7 +196,6 @@ export class AudioScheduler {
 
 	stop() {
 		this.queueLock = true;
-		this.index = -1;
 		this.player.stop(true);
 	}
 
@@ -241,39 +204,6 @@ export class AudioScheduler {
 		const skipped = this.playing;
 		this.player.stop(true);
 		return skipped;
-	}
-
-	remove(index) {
-		this.queue.splice(index, 1);
-		if(index <= this.index) {
-			if(this.index == index) {
-				this.skip();
-			}
-			this.index--;
-		}
-	}
-
-	clear() {
-		this.queueLock = false;
-		this.index = 0;
-		this.queue = [];
-		this.player.stop(true);
-	}
-
-	shuffle() {
-		const queue = this.queue;
-		let current = queue.length, random;
-		while (current != 0) {
-			random = Math.floor(Math.random() * current);
-			current--;
-			[queue[current], queue[random]] = [queue[random], queue[current]];
-			if(current == this.index) {
-				this.index = random;
-			}
-			else if(random == this.index) {
-				this.index = current;
-			}
-		}
 	}
 
 }

@@ -4,7 +4,7 @@ import {
 	ActionRowBuilder,
 	ButtonStyle,
 	ComponentType } from 'discord.js';
-import { schedulers, guildData } from '../storage.js';
+import { getCurrentIndex, getQueue, schedulers } from '../storage.js';
 import { createSimpleSuccess } from '../util.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 
@@ -32,10 +32,9 @@ export default {
 };
 
 function getMessage(guildId, page) {
-	const data = guildData[guildId];
-	const queue = data ? (data.queue || []) : [];
+	const queue = getQueue(guildId);
 	const scheduler = schedulers[guildId];
-	const index = scheduler && scheduler.player.state.status !== AudioPlayerStatus.Idle ? scheduler.index : -1;
+	const index = scheduler && scheduler.player.state.status !== AudioPlayerStatus.Idle ? getCurrentIndex(guildId) : -1;
 	return createMessage(queue, Math.min(page, queue.length - 1), index);
 }
 
