@@ -9,7 +9,7 @@ import {
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import { schedulers, queues } from '../storage.js';
+import { schedulers, guildData } from '../storage.js';
 const wait = promisify(setTimeout);
 
 
@@ -92,18 +92,75 @@ export class AudioScheduler {
 		this.connection.subscribe(this.player);
 	}
 
-	getQueue() {
-		if(!queues.has(this.channel.guildId)) {
-			queues.set(this.channel.guildId, []);
+	get index() {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
 		}
-		return queues.get(this.channel.guildId);
+		const data = guildData.get(this.channel.guildId);
+		if(!data.index && data.index !== 0) {
+			data.index = -1;
+		}
+		return data.index;
+	}
+
+	set index(index) {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		guildData.get(this.channel.guildId).index = index;
+	}
+
+	get queue() {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		const data = guildData.get(this.channel.guildId);
+		if(!data.queue) {
+			data.queue = [];
+		}
+		return data.queue;
+	}
+
+	set queue(queue) {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		guildData.get(this.channel.guildId).queue = queue;
+	}
+
+	get message() {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		return guildData.get(this.channel.guildId).message;
+	}
+
+	set message(message) {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		guildData.get(this.channel.guildId).message = message;
+	}
+
+	get autoplayer() {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		return guildData.get(this.channel.guildId).autoplayer;
+	}
+
+	set autoplayer(autoplayer) {
+		if(!guildData.has(this.channel.guildId)) {
+			guildData.set(this.channel.guildId, {});
+		}
+		guildData.get(this.channel.guildId).autoplayer = autoplayer;
 	}
 
 	async processQueue() {
 		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
 			return;
 		}
-		const queue = this.getQueue();
+		const queue = this.queue;
 		let track;
 		if(this.index < queue.length - 1) {
 			this.index++;
@@ -139,7 +196,7 @@ export class AudioScheduler {
 	}
 
 	async enqueue(track) {
-		this.getQueue().push(track);
+		this.queue.push(track);
 		await this.processQueue();
 	}
 
@@ -166,7 +223,7 @@ export class AudioScheduler {
 	}
 
 	hasNextTrack() {
-		return this.index < this.getQueue().length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
+		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
 	}
 
 	stop() {
@@ -195,12 +252,12 @@ export class AudioScheduler {
 	clear() {
 		this.queueLock = false;
 		this.index = 0;
-		queues.set(this.channel.guildId, []);
+		this.queue = [];
 		this.player.stop(true);
 	}
 
 	shuffle() {
-		const queue = this.getQueue();
+		const queue = this.queue;
 		let current = queue.length, random;
 		while (current != 0) {
 			random = Math.floor(Math.random() * current);

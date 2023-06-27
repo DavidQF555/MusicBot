@@ -37,7 +37,7 @@ export default {
 					await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
 					return;
 				}
-				scheduler.index = scheduler.getQueue().length - 1;
+				scheduler.index = scheduler.queue.length - 1;
 			}
 			else {
 				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
