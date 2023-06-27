@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { enterChannel } from '../audio/scheduler.js';
-import { schedulers } from '../storage.js';
+import { schedulers } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import autoplayers from '../audio/autoplayers.js';
 

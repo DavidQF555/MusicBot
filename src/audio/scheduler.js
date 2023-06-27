@@ -9,7 +9,7 @@ import {
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, setMessage, getAutoplayer, setAutoplayer } from '../storage.js';
+import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, setMessage, getAutoplayer, setAutoplayer } from '../data.js';
 const wait = promisify(setTimeout);
 
 

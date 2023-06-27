@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { shuffle } from '../storage.js';
+import { shuffle } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
 export default {

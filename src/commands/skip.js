@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { schedulers } from '../storage.js';
+import { schedulers } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
 export default {

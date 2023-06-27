@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { clear } from '../storage.js';
+import { clear } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
 export default {

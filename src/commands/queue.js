@@ -4,7 +4,7 @@ import {
 	ActionRowBuilder,
 	ButtonStyle,
 	ComponentType } from 'discord.js';
-import { getCurrentIndex, getQueue, schedulers } from '../storage.js';
+import { getCurrentIndex, getQueue, schedulers } from '../data.js';
 import { createSimpleSuccess } from '../util.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
 
