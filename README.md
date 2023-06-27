@@ -38,3 +38,4 @@ If Node.js and npm are already installed, skip this step. If not, follow these [
 | shuffle | Randomizes the order of the queue |
 | autoplay | Sets the autoplayer |
 | leave | Tells this bot to leave the voice channel |
+| join | Joins the current channel |

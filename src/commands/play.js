@@ -28,10 +28,11 @@ export default {
 				),
 		),
 	async execute(interaction) {
+		let scheduler;
 		await interaction.deferReply({ ephemeral: true });
-		let scheduler = schedulers[interaction.guildId];
-		if(!scheduler) {
-			if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
+		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
+			scheduler = schedulers[interaction.guildId];
+			if(!scheduler || interaction.guild.members.me.voice.channelId !== interaction.member.voice.channelId) {
 				scheduler = await enterChannel(interaction.member.voice.channel);
 				if(!scheduler) {
 					await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
@@ -39,38 +40,28 @@ export default {
 				}
 				scheduler.index = scheduler.queue.length - 1;
 			}
-			else {
-				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
-				return;
-			}
 		}
-		else if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
-			await interaction.followUp(createSimpleFailure('Must be in the same channel'));
+		else {
+			await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
 			return;
 		}
 		const subcommand = interaction.options.getSubcommand();
-		try {
-			let track;
-			if(subcommand == 'url') {
-				const id = getYouTubeID(interaction.options.getString('url', true));
-				if(id) {
-					track = await createTrack(id, interaction.channel);
-				}
-				else {
-					await interaction.followUp(createSimpleFailure('Could not process URL'));
-					return;
-				}
+		let track;
+		if(subcommand == 'url') {
+			const id = getYouTubeID(interaction.options.getString('url', true));
+			if(id) {
+				track = await createTrack(id, interaction.channel);
 			}
 			else {
-				track = await searchTrack(interaction.options.getString('query'), interaction.channel);
+				await interaction.followUp(createSimpleFailure('Could not process URL'));
+				return;
 			}
-			scheduler.channel = interaction.channel;
-			await scheduler.enqueue(track);
-			await interaction.followUp(createSimpleSuccess(`Enqueued [${track.title}](${track.url})`));
 		}
-		catch (error) {
-			console.warn(error);
-			await interaction.followUp(createSimpleFailure('Failed to play track, please try again later!'));
+		else {
+			track = await searchTrack(interaction.options.getString('query'), interaction.channel);
 		}
+		scheduler.channel = interaction.channel;
+		await scheduler.enqueue(track);
+		await interaction.followUp(createSimpleSuccess(`Enqueued [${track.title}](${track.url})`));
 	},
 };

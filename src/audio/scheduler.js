@@ -14,6 +14,11 @@ const wait = promisify(setTimeout);
 
 
 export async function enterChannel(channel) {
+	const prev = schedulers[channel.guildId];
+	if(prev) {
+		prev.connection.destroy();
+		schedulers[channel.guildId] = null;
+	}
 	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
 			channelId: channel.id,
@@ -39,7 +44,6 @@ export class AudioScheduler {
 		this.connection = connection;
 		this.channel = channel;
 		this.player = createAudioPlayer();
-		this.index = -1;
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
