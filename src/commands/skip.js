@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { schedulers } from '../audio/scheduler.js';
+import { schedulers } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
 export default {
@@ -8,7 +8,7 @@ export default {
 		.setName('skip')
 		.setDescription('Skips the current song'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
+		const scheduler = schedulers[interaction.guildId];
 		if(!scheduler) {
 			await interaction.reply(createSimpleFailure('Not currently playing'));
 			return;

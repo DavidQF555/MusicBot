@@ -9,21 +9,24 @@ import {
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
+import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, setMessage, getAutoplayer, setAutoplayer } from '../data.js';
 const wait = promisify(setTimeout);
 
 
-export const schedulers = new Map();
-
 export async function enterChannel(channel) {
+	const prev = schedulers[channel.guildId];
+	if(prev) {
+		prev.connection.destroy();
+		schedulers[channel.guildId] = null;
+	}
 	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
 			channelId: channel.id,
-			guildId: channel.guild.id,
+			guildId: channel.guildId,
 			adapterCreator: channel.guild.voiceAdapterCreator,
 		}), channel,
 	);
 	scheduler.connection.on('error', console.warn);
-	schedulers.set(channel.guildId, scheduler);
 	try {
 		await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
 	}
@@ -31,6 +34,7 @@ export async function enterChannel(channel) {
 		console.warn(error);
 		return;
 	}
+	schedulers[channel.guildId] = scheduler;
 	return scheduler;
 }
 
@@ -40,8 +44,7 @@ export class AudioScheduler {
 		this.connection = connection;
 		this.channel = channel;
 		this.player = createAudioPlayer();
-		this.queue = [];
-		this.index = -1;
+		this.update = Date.now();
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
@@ -63,7 +66,7 @@ export class AudioScheduler {
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
 				this.resetMessage();
-				schedulers.delete(this.channel.guild.id);
+				schedulers[this.channel.guild.id] = null;
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
@@ -81,6 +84,7 @@ export class AudioScheduler {
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
 				this.playing = null;
+				this.update = Date.now();
 				this.resetMessage();
 				await this.processQueue();
 			}
@@ -94,14 +98,43 @@ export class AudioScheduler {
 		this.connection.subscribe(this.player);
 	}
 
+	get index() {
+		return getCurrentIndex(this.channel.guildId);
+	}
+
+	set index(index) {
+		setCurrentIndex(this.channel.guildId, index);
+	}
+
+	get queue() {
+		return getQueue(this.channel.guildId);
+	}
+
+	get message() {
+		return getMessage(this.channel.guildId);
+	}
+
+	set message(message) {
+		setMessage(this.channel.guildId, message);
+	}
+
+	get autoplayer() {
+		return getAutoplayer(this.channel.guildId);
+	}
+
+	set autoplayer(autoplayer) {
+		setAutoplayer(this.channel.guildId, autoplayer);
+	}
+
 	async processQueue() {
 		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
 			return;
 		}
+		const queue = this.queue;
 		let track;
-		if(this.index < this.queue.length - 1) {
+		if(this.index < queue.length - 1) {
 			this.index++;
-			track = this.queue[this.index];
+			track = queue[this.index];
 		}
 		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
 			track = await this.autoplayer.getNextTrack(this);
@@ -117,7 +150,6 @@ export class AudioScheduler {
 			this.player.play(resource);
 		}
 		catch (error) {
-			track.onError(error);
 			await this.processQueue();
 		}
 		finally {
@@ -165,8 +197,6 @@ export class AudioScheduler {
 
 	stop() {
 		this.queueLock = true;
-		this.queue = [];
-		this.index = -1;
 		this.player.stop(true);
 	}
 
@@ -175,46 +205,6 @@ export class AudioScheduler {
 		const skipped = this.playing;
 		this.player.stop(true);
 		return skipped;
-	}
-
-	nextIndex() {
-		if(this.loop && this.index >= this.queue.length - 1) {
-			this.index = 0;
-			return;
-		}
-		this.index++;
-	}
-
-	remove(index) {
-		this.queue.splice(index, 1);
-		if(index <= this.index) {
-			if(this.index == index) {
-				this.skip();
-			}
-			this.index--;
-		}
-	}
-
-	clear() {
-		this.queueLock = false;
-		this.index = 0;
-		this.queue = [];
-		this.player.stop(true);
-	}
-
-	shuffle() {
-		let current = this.queue.length, random;
-		while (current != 0) {
-			random = Math.floor(Math.random() * current);
-			current--;
-			[this.queue[current], this.queue[random]] = [this.queue[random], this.queue[current]];
-			if(current == this.index) {
-				this.index = random;
-			}
-			else if(random == this.index) {
-				this.index = current;
-			}
-		}
 	}
 
 }
