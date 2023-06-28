@@ -4,20 +4,25 @@ const guildData = {};
 
 export function remove(guildId, query) {
 	const queue = getQueue(guildId);
-	const index = getCurrentIndex();
+	const index = getCurrentIndex(guildId);
+	const regexes = query.split(' ').map(part => new RegExp(part, 'i'));
+	queue:
 	for(let i = 0; i < queue.length; i++) {
 		const track = queue[i];
-		if(track.title.toLowerCase().includes(query)) {
-			queue.splice(i, 1);
-			if((index || index === 0) && i <= index) {
-				const scheduler = schedulers[guildId];
-				if(index === i && scheduler) {
-					scheduler.skip();
-				}
-				setCurrentIndex(index - 1);
+		for(const regex of regexes) {
+			if(!regex.test(track.title)) {
+				continue queue;
 			}
-			return track;
 		}
+		queue.splice(i, 1);
+		if(i <= index) {
+			const scheduler = schedulers[guildId];
+			if(scheduler && index === i) {
+				scheduler.skip();
+			}
+			setCurrentIndex(guildId, index - 1);
+		}
+		return track;
 	}
 }
 
