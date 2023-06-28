@@ -1,14 +1,14 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { schedulers } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import { getVoiceConnection } from '@discordjs/voice';
 
 export default {
 	data: new SlashCommandBuilder()
 		.setName('leave')
 		.setDescription('Tells bot to leave current channel'),
 	async execute(interaction) {
-		const scheduler = schedulers[interaction.guildId];
-		if(!scheduler) {
+		const connection = getVoiceConnection(interaction.guildId);
+		if(!connection) {
 			await interaction.reply(createSimpleFailure('I am not currently in a channel'));
 			return;
 		}
@@ -16,7 +16,7 @@ export default {
 			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
-		scheduler.connection.destroy();
+		connection.destroy();
 		await interaction.reply(createSimpleSuccess('Successfully left the channel'));
 	},
 };
