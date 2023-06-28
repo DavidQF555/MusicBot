@@ -31,8 +31,7 @@
     "play-dl": "^1.9.6"
   },
   "devDependencies": {
-    "eslint": "^8.42.0",
-    "npm-check-updates": "^16.10.12"
+    "eslint": "^8.42.0"
   },
   "optionalDependencies": {
     "node-myanimelist": "^4.1.2"
