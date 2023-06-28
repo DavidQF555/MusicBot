@@ -24,14 +24,14 @@
     "@davidqf555/simple-request": "^1.0.11",
     "@discordjs/voice": "^0.16.0",
     "discord.js": "^14.11.0",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "ffmpeg-static": "^5.1.0",
     "get-youtube-id": "^1.0.1",
     "libsodium-wrappers": "^0.7.11",
     "play-dl": "^1.9.6"
   },
   "devDependencies": {
-    "eslint": "^8.42.0"
+    "eslint": "^8.43.0"
   },
   "optionalDependencies": {
     "node-myanimelist": "^4.1.2"
