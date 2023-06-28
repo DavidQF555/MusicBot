@@ -44,6 +44,7 @@ export class AudioScheduler {
 		this.connection = connection;
 		this.channel = channel;
 		this.player = createAudioPlayer();
+		this.update = Date.now();
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
@@ -83,6 +84,7 @@ export class AudioScheduler {
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
 				this.playing = null;
+				this.update = Date.now();
 				this.resetMessage();
 				await this.processQueue();
 			}
