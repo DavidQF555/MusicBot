@@ -136,7 +136,7 @@ export class AudioScheduler {
 			this.index++;
 			track = queue[this.index];
 		}
-		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
+		else if (this.autoplayer && this.autoplayer.hasNextTrack(this.channel.guildId)) {
 			track = await this.autoplayer.getNextTrack(this);
 			if(!track) {
 				return;
@@ -192,7 +192,7 @@ export class AudioScheduler {
 	}
 
 	hasNextTrack() {
-		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
+		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this.channel.guildId));
 	}
 
 	stop() {

@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { enterChannel } from '../audio/scheduler.js';
-import { schedulers } from '../data.js';
+import { schedulers, setAutoplayer } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import autoplayers from '../audio/autoplayers.js';
 
@@ -24,26 +23,17 @@ export default {
 				})),
 		),
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
-		let scheduler = schedulers[interaction.guildId];
-		if(!scheduler) {
-			if(!interaction.member.voice.channel) {
-				await interaction.followUp(createSimpleFailure('You must be in a voice channel'));
-				return;
-			}
-			scheduler = await enterChannel(interaction.member.voice.channel);
-			if(!scheduler) {
-				await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
-				return;
-			}
-		}
-		else if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
-			await interaction.followUp(createSimpleFailure('Must be in the same channel'));
+		const scheduler = schedulers[interaction.guildId];
+		if(scheduler && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
 		const type = interaction.options.get('type').value;
-		scheduler.autoplayer = types[type];
-		await scheduler.processQueue();
-		await interaction.followUp(createSimpleSuccess(`Changed autoplayer to \`${type}\``));
+		const autoplayer = types[type];
+		setAutoplayer(interaction.guildId, autoplayer);
+		await interaction.reply(createSimpleSuccess(`Changed autoplayer to \`${type}\``));
+		if(scheduler) {
+			await scheduler.processQueue();
+		}
 	},
 };
