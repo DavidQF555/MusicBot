@@ -5,7 +5,7 @@ const searchCount = 100;
 
 export default {
 	name: 'anime',
-	isSetup: process.env.MAL_API_ID,
+	isSetup: !!process.env.MAL_API_ID,
 	autoplayer: {
 		getNextTrack: async function() {
 			const top = await getTopAnime(searchCount);

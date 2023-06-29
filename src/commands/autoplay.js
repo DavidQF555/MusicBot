@@ -7,7 +7,9 @@ const types = {
 	none: null,
 };
 autoplayers.forEach(data => {
-	types[data.name] = data.autoplayer;
+	if(data.isSetup) {
+		types[data.name] = data.autoplayer;
+	}
 });
 
 export default {
