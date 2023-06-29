@@ -16,7 +16,7 @@ export default {
 						return Jikan4.animeSearch({
 							limit: Math.min(searchCount - maxPerPage * i, maxPerPage),
 							order_by: 'members',
-							sort: 'desc',
+							sort: 'asc',
 							page: i + 1,
 						});
 					});
@@ -38,7 +38,7 @@ export default {
 					continue;
 				}
 				for(let j = 0; j < anime.themes.length; j++) {
-					options.push(`${title} opening ${j + 1}`);
+					options.push(`${title} anime opening ${j + 1}`);
 				}
 			}
 			return await searchTrack(options[Math.floor(Math.random() * options.length)]);
