@@ -1,6 +1,6 @@
 import { createAudioResource } from '@discordjs/voice';
+import fetch from 'node-fetch';
 import { stream } from 'play-dl';
-import { get } from '@davidqf555/simple-request';
 
 export class AudioTrack {
 
@@ -21,12 +21,12 @@ export class AudioTrack {
 
 export async function searchTrack(query) {
 	const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&key=${process.env.YT_DATA_KEY}`;
-	const video = JSON.parse(await get(url)).items[0];
+	const video = (await (await fetch(url)).json()).items[0];
 	return new AudioTrack(video.snippet.title, `https://youtu.be/${video.id.videoId}`);
 }
 
 export async function createTrack(id) {
 	const url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${id}&maxResults=1&key=${process.env.YT_DATA_KEY}`;
-	const video = JSON.parse(await get(url)).items[0];
+	const video = (await (await fetch(url)).json()).items[0];
 	return new AudioTrack(video.snippet.title, `https://youtu.be/${id}`);
 }
