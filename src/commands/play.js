@@ -33,7 +33,7 @@ export default {
 		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
 			scheduler = schedulers[interaction.guildId];
 			if(!scheduler || interaction.guild.members.me.voice.channelId !== interaction.member.voice.channelId) {
-				scheduler = await enterChannel(interaction.member.voice.channel);
+				scheduler = await enterChannel(interaction.member.voice.channel, interaction.channel);
 				if(!scheduler) {
 					await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
 					return;

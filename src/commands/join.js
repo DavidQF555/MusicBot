@@ -7,9 +7,9 @@ export default {
 		.setName('join')
 		.setDescription('Joins the current voice channel'),
 	async execute(interaction) {
-		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
+		if (interaction.member instanceof GuildMember && interaction.member.voice.channel && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
 			await interaction.deferReply({ ephemeral: true });
-			const scheduler = await enterChannel(interaction.member.voice.channel);
+			const scheduler = await enterChannel(interaction.member.voice.channel, interaction.channel);
 			if(!scheduler) {
 				await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
 				return;
@@ -18,7 +18,7 @@ export default {
 			await scheduler.processQueue();
 		}
 		else {
-			await interaction.reply(createSimpleFailure('You must be in a voice channel'));
+			await interaction.reply(createSimpleFailure('You must be in a different voice channel'));
 		}
 	},
 };

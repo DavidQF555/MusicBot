@@ -13,18 +13,18 @@ import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, set
 const wait = promisify(setTimeout);
 
 
-export async function enterChannel(channel) {
-	const prev = schedulers[channel.guildId];
+export async function enterChannel(voiceChannel, textChannel) {
+	const prev = schedulers[voiceChannel.guildId];
 	if(prev) {
 		prev.connection.destroy();
-		schedulers[channel.guildId] = null;
+		schedulers[voiceChannel.guildId] = null;
 	}
 	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
-			channelId: channel.id,
-			guildId: channel.guildId,
-			adapterCreator: channel.guild.voiceAdapterCreator,
-		}), channel,
+			channelId: voiceChannel.id,
+			guildId: voiceChannel.guildId,
+			adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+		}), textChannel,
 	);
 	scheduler.connection.on('error', console.warn);
 	try {
@@ -34,7 +34,7 @@ export async function enterChannel(channel) {
 		console.warn(error);
 		return;
 	}
-	schedulers[channel.guildId] = scheduler;
+	schedulers[voiceChannel.guildId] = scheduler;
 	return scheduler;
 }
 
