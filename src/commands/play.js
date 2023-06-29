@@ -50,7 +50,7 @@ export default {
 		if(subcommand == 'url') {
 			const id = getYouTubeID(interaction.options.getString('url', true));
 			if(id) {
-				track = await createTrack(id, interaction.channel);
+				track = await createTrack(id);
 			}
 			else {
 				await interaction.followUp(createSimpleFailure('Could not process URL'));
@@ -58,7 +58,7 @@ export default {
 			}
 		}
 		else {
-			track = await searchTrack(interaction.options.getString('query'), interaction.channel);
+			track = await searchTrack(interaction.options.getString('query'));
 		}
 		scheduler.channel = interaction.channel;
 		await scheduler.enqueue(track);

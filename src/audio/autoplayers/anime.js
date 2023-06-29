@@ -8,7 +8,7 @@ export default {
 	name: 'anime',
 	isSetup: !!Jikan4,
 	autoplayer: {
-		getNextTrack: async function(scheduler) {
+		getNextTrack: async function() {
 			let data = [];
 			for(let i = 0; i < searchCount / maxPerPage; i++) {
 				const search = await new Promise(resolve => setTimeout(resolve, 2000))
@@ -41,7 +41,7 @@ export default {
 					options.push(`${title} opening ${j + 1}`);
 				}
 			}
-			return await searchTrack(options[Math.floor(Math.random() * options.length)], scheduler.autoplay_channel);
+			return await searchTrack(options[Math.floor(Math.random() * options.length)]);
 		},
 		hasNextTrack: () => true,
 	},

@@ -43,7 +43,6 @@ export default {
 		}
 		const type = interaction.options.get('type').value;
 		scheduler.autoplayer = types[type];
-		scheduler.autoplay_channel = interaction.channel;
 		await scheduler.processQueue();
 		await interaction.followUp(createSimpleSuccess(`Changed autoplayer to \`${type}\``));
 	},
