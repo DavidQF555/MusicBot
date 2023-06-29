@@ -1,48 +1,29 @@
-import { Jikan4 } from 'node-myanimelist';
+import fetch from 'node-fetch';
 import { searchTrack } from '../../audio/track.js';
 
 const searchCount = 100;
-const maxPerPage = 25;
 
 export default {
 	name: 'anime',
-	isSetup: !!Jikan4,
+	isSetup: process.env.MAL_API_ID,
 	autoplayer: {
 		getNextTrack: async function() {
-			let data = [];
-			for(let i = 0; i < searchCount / maxPerPage; i++) {
-				const search = await new Promise(resolve => setTimeout(resolve, 2000))
-					.then(() => {
-						return Jikan4.animeSearch({
-							limit: Math.min(searchCount - maxPerPage * i, maxPerPage),
-							order_by: 'members',
-							sort: 'asc',
-							page: i + 1,
-						});
-					});
-				data = data.concat(search.data);
-			}
-			const options = [];
-			for(const anime of data) {
-				let title;
-				if(anime.title) {
-					title = anime.title;
-				}
-				else if(anime.title_english) {
-					title = anime.title_english;
-				}
-				else if (anime.title_japanese) {
-					title = anime.title_japanese;
-				}
-				else {
-					continue;
-				}
-				for(let j = 0; j < anime.themes.length; j++) {
-					options.push(`${title} anime opening ${j + 1}`);
-				}
-			}
-			return await searchTrack(options[Math.floor(Math.random() * options.length)]);
+			const top = await getTopAnime(searchCount);
+			const selected = top[Math.floor(Math.random() * top.length)].node;
+			const count = await getOpeningsCount(selected.id);
+			const search = `${selected.title} anime opening ${Math.floor(Math.random() * count) + 1}`;
+			return searchTrack(search);
 		},
 		hasNextTrack: () => true,
 	},
 };
+
+async function getTopAnime(count) {
+	const url = `https://api.myanimelist.net/v2/anime/ranking?ranking_type=bypopularity&limit=${count}`;
+	return (await (await fetch(url, { headers: [['X-MAL-CLIENT-ID', process.env.MAL_API_ID]] })).json()).data;
+}
+
+async function getOpeningsCount(id) {
+	const url = `https://api.myanimelist.net/v2/anime/${id}?fields=opening_themes`;
+	return (await (await fetch(url, { headers: [['X-MAL-CLIENT-ID', process.env.MAL_API_ID]] })).json()).opening_themes.length;
+}
