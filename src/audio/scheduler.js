@@ -137,23 +137,26 @@ export class AudioScheduler {
 			track = queue[this.index];
 		}
 		else if (this.autoplayer && this.autoplayer.hasNextTrack(this.channel.guildId)) {
+			this.queueLock = true;
 			track = await this.autoplayer.getNextTrack(this);
 			if(!track) {
+				this.queueLock = false;
+				await this.processQueue();
 				return;
 			}
 		}
 		else {
 			return;
 		}
+		this.queueLock = true;
 		try {
 			const resource = await track.createAudioResource();
 			this.player.play(resource);
+			this.queueLock = false;
 		}
 		catch (error) {
-			await this.processQueue();
-		}
-		finally {
 			this.queueLock = false;
+			await this.processQueue();
 		}
 	}
 
@@ -182,9 +185,8 @@ export class AudioScheduler {
 		collector.on('collect', async interaction => {
 			if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
 				await interaction.reply(createSimpleFailure('Must be in the same channel'));
-				return;
 			}
-			if(this.hasNextTrack() || this.player.state.status !== AudioPlayerStatus.Idle || this.queueLock) {
+			else if(this.hasNextTrack() || this.player.state.status !== AudioPlayerStatus.Idle) {
 				const skipped = this.skip();
 				await interaction.reply(createSimpleSuccess(`Successfully skipped [${skipped.title}](${skipped.url})`));
 			}

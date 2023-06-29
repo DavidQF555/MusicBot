@@ -17,7 +17,7 @@ export default {
 			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
-		if(!scheduler.hasNextTrack() && scheduler.player.state.status === AudioPlayerStatus.Idle && !scheduler.queueLock) {
+		if(!scheduler.hasNextTrack() && scheduler.player.state.status === AudioPlayerStatus.Idle) {
 			await interaction.reply(createSimpleFailure('At the end of the queue'));
 			return;
 		}
