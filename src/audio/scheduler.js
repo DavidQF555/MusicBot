@@ -8,23 +8,25 @@ import {
 } from '@discordjs/voice';
 import { promisify } from 'util';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
-import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
-import { ButtonStyle, ComponentType } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
+import { schedulers, setCurrentIndex, getQueue, getCurrentIndex, getMessage, setMessage, getAutoplayer, setAutoplayer } from '../data.js';
 const wait = promisify(setTimeout);
 
 
-export const schedulers = new Map();
-
-export async function enterChannel(channel) {
+export async function enterChannel(voiceChannel, textChannel) {
+	const prev = schedulers[voiceChannel.guildId];
+	if(prev) {
+		prev.connection.destroy();
+		schedulers[voiceChannel.guildId] = null;
+	}
 	const scheduler = new AudioScheduler(
 		joinVoiceChannel({
-			channelId: channel.id,
-			guildId: channel.guild.id,
-			adapterCreator: channel.guild.voiceAdapterCreator,
-		}), channel,
+			channelId: voiceChannel.id,
+			guildId: voiceChannel.guildId,
+			adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+		}), textChannel,
 	);
 	scheduler.connection.on('error', console.warn);
-	schedulers.set(channel.guildId, scheduler);
 	try {
 		await entersState(scheduler.connection, VoiceConnectionStatus.Ready, 20e3);
 	}
@@ -32,6 +34,7 @@ export async function enterChannel(channel) {
 		console.warn(error);
 		return;
 	}
+	schedulers[voiceChannel.guildId] = scheduler;
 	return scheduler;
 }
 
@@ -41,8 +44,7 @@ export class AudioScheduler {
 		this.connection = connection;
 		this.channel = channel;
 		this.player = createAudioPlayer();
-		this.queue = [];
-		this.index = -1;
+		this.update = Date.now();
 		this.connection.on('stateChange', async (oldState, newState) => {
 			if (newState.status === VoiceConnectionStatus.Disconnected) {
 				if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
@@ -63,8 +65,8 @@ export class AudioScheduler {
 			}
 			else if (newState.status === VoiceConnectionStatus.Destroyed) {
 				this.stop();
-				this.resetMessage();
-				schedulers.delete(this.channel.guild.id);
+				schedulers[this.channel.guild.id] = null;
+				await this.resetMessage();
 			}
 			else if (!this.readyLock && (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
 				this.readyLock = true;
@@ -82,12 +84,13 @@ export class AudioScheduler {
 		this.player.on('stateChange', async (oldState, newState) => {
 			if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
 				this.playing = null;
+				this.update = Date.now();
 				this.resetMessage();
 				await this.processQueue();
 			}
 			else if (newState.status === AudioPlayerStatus.Playing) {
 				this.playing = newState.resource.metadata;
-				this.resetMessage();
+				await this.resetMessage();
 				this.message = await this.sendMessage(newState.resource.metadata.getStartText());
 			}
 		});
@@ -95,41 +98,73 @@ export class AudioScheduler {
 		this.connection.subscribe(this.player);
 	}
 
+	get index() {
+		return getCurrentIndex(this.channel.guildId);
+	}
+
+	set index(index) {
+		setCurrentIndex(this.channel.guildId, index);
+	}
+
+	get queue() {
+		return getQueue(this.channel.guildId);
+	}
+
+	get message() {
+		return getMessage(this.channel.guildId);
+	}
+
+	set message(message) {
+		setMessage(this.channel.guildId, message);
+	}
+
+	get autoplayer() {
+		return getAutoplayer(this.channel.guildId);
+	}
+
+	set autoplayer(autoplayer) {
+		setAutoplayer(this.channel.guildId, autoplayer);
+	}
+
 	async processQueue() {
 		if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
 			return;
 		}
+		const { queue } = this;
 		let track;
-		if(this.index < this.queue.length - 1) {
+		if(this.index < queue.length - 1) {
 			this.index++;
-			track = this.queue[this.index];
+			track = queue[this.index];
 		}
-		else if (this.autoplayer && this.autoplayer.hasNextTrack(this)) {
+		else if (this.autoplayer && this.autoplayer.hasNextTrack(this.channel.guildId)) {
+			this.queueLock = true;
 			track = await this.autoplayer.getNextTrack(this);
 			if(!track) {
+				this.queueLock = false;
+				await this.processQueue();
 				return;
 			}
 		}
 		else {
 			return;
 		}
+		this.queueLock = true;
 		try {
 			const resource = await track.createAudioResource();
 			this.player.play(resource);
+			this.queueLock = false;
 		}
 		catch (error) {
-			track.onError(error);
-			await this.processQueue();
-		}
-		finally {
 			this.queueLock = false;
+			await this.processQueue();
 		}
 	}
 
-	resetMessage() {
-		if(this.message) {
-			this.message.delete();
+	async resetMessage() {
+		const { message } = this;
+		if(message) {
 			this.message = null;
+			await message.delete();
 		}
 	}
 
@@ -150,9 +185,8 @@ export class AudioScheduler {
 		collector.on('collect', async interaction => {
 			if(interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
 				await interaction.reply(createSimpleFailure('Must be in the same channel'));
-				return;
 			}
-			if(this.hasNextTrack() || this.player.state.status !== AudioPlayerStatus.Idle || this.queueLock) {
+			else if(this.hasNextTrack() || this.player.state.status !== AudioPlayerStatus.Idle) {
 				const skipped = this.skip();
 				await interaction.reply(createSimpleSuccess(`Successfully skipped [${skipped.title}](${skipped.url})`));
 			}
@@ -161,13 +195,11 @@ export class AudioScheduler {
 	}
 
 	hasNextTrack() {
-		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this));
+		return this.index < this.queue.length - 1 || (this.autoplayer && this.autoplayer.hasNextTrack(this.channel.guildId));
 	}
 
 	stop() {
 		this.queueLock = true;
-		this.queue = [];
-		this.index = -1;
 		this.player.stop(true);
 	}
 
@@ -176,46 +208,6 @@ export class AudioScheduler {
 		const skipped = this.playing;
 		this.player.stop(true);
 		return skipped;
-	}
-
-	nextIndex() {
-		if(this.loop && this.index >= this.queue.length - 1) {
-			this.index = 0;
-			return;
-		}
-		this.index++;
-	}
-
-	remove(index) {
-		this.queue.splice(index, 1);
-		if(index <= this.index) {
-			if(this.index == index) {
-				this.skip();
-			}
-			this.index--;
-		}
-	}
-
-	clear() {
-		this.queueLock = false;
-		this.index = 0;
-		this.queue = [];
-		this.player.stop(true);
-	}
-
-	shuffle() {
-		let current = this.queue.length, random;
-		while (current != 0) {
-			random = Math.floor(Math.random() * current);
-			current--;
-			[this.queue[current], this.queue[random]] = [this.queue[random], this.queue[current]];
-			if(current == this.index) {
-				this.index = random;
-			}
-			else if(random == this.index) {
-				this.index = current;
-			}
-		}
 	}
 
 }

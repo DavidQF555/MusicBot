@@ -1,8 +1,12 @@
-import { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder } from '@discordjs/builders';
-import { schedulers } from '../audio/scheduler.js';
-import { createSimpleFailure, createSimpleSuccess } from '../util.js';
+import {
+	SlashCommandBuilder,
+	ButtonBuilder,
+	ActionRowBuilder,
+	ButtonStyle,
+	ComponentType } from 'discord.js';
+import { getCurrentIndex, getQueue, schedulers } from '../data.js';
+import { createSimpleSuccess } from '../util.js';
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { ButtonStyle, ComponentType } from 'discord.js';
 
 const MAX_PER_PAGE = 10;
 const MAX_LENGTH = 40;
@@ -12,34 +16,29 @@ export default {
 		.setName('queue')
 		.setDescription('Displays the queued tracks'),
 	async execute(interaction) {
-		const scheduler = schedulers.get(interaction.guildId);
-		if(!scheduler) {
-			await interaction.reply(createSimpleFailure('Not currently playing'));
-			return;
-		}
-		const message = getMessage(scheduler.queue, 0, scheduler.player.state.status === AudioPlayerStatus.Idle ? -1 : scheduler.index);
-		const response = await interaction.reply(message);
-		const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button });
 		let page = 0;
+		const response = await interaction.reply(getMessage(interaction.guildId, page));
+		const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button });
 		collector.on('collect', async press => {
-			const s = schedulers.get(press.guildId);
-			if(!s) {
-				await press.deferUpdate();
-				await press.deleteReply();
-				return;
-			}
 			if(press.customId == 'prev') {
 				page = Math.max(0, page - 1);
 			}
 			else if(press.customId == 'next') {
 				page++;
 			}
-			await press.update(getMessage(s.queue, Math.min(page, s.queue.length - 1), s.index));
+			await press.update(getMessage(press.guildId, page));
 		});
 	},
 };
 
-function getMessage(queue, page, current) {
+function getMessage(guildId, page) {
+	const queue = getQueue(guildId);
+	const scheduler = schedulers[guildId];
+	const index = scheduler && scheduler.player.state.status !== AudioPlayerStatus.Idle ? getCurrentIndex(guildId) : -1;
+	return createMessage(queue, Math.min(page, queue.length - 1), index);
+}
+
+function createMessage(queue, page, current) {
 	const buttons = new ActionRowBuilder();
 	const refresh = new ButtonBuilder()
 		.setCustomId('refresh')
@@ -55,7 +54,7 @@ function getMessage(queue, page, current) {
 		const end = Math.min(queue.length, (page + 1) * MAX_PER_PAGE);
 		for (let i = page * MAX_PER_PAGE; i < end; i++) {
 			const track = queue[i];
-			let line = i + 1 + '. [' + track.title.substring(0, MAX_LENGTH) + '](' + track.url + ')';
+			let line = '**' + (i + 1) + '.** [' + track.title.substring(0, MAX_LENGTH) + '](' + track.url + ')';
 			if(i == current) {
 				line = '> **' + line + '**';
 			}
@@ -64,7 +63,7 @@ function getMessage(queue, page, current) {
 				desc += '\n';
 			}
 		}
-		desc += `\n\nPage ${page + 1} of ${Math.ceil(queue.length / MAX_PER_PAGE)}`;
+		desc += `\n\nPage **${page + 1}** of **${Math.ceil(queue.length / MAX_PER_PAGE)}**`;
 		const prev = new ButtonBuilder()
 			.setCustomId('prev')
 			.setLabel('Previous')

@@ -1,12 +1,13 @@
 import 'dotenv/config';
-import { REST } from '@discordjs/rest';
-import { Client, Collection, IntentsBitField } from 'discord.js';
-import { Routes } from 'discord-api-types/v9';
+import { REST, Client, Collection, IntentsBitField, Routes } from 'discord.js';
 import { createSimpleFailure } from './util.js';
 import baseCommands from './commands.js';
+import { AudioPlayerStatus, VoiceConnectionStatus } from '@discordjs/voice';
+import { schedulers } from './data.js';
 
 const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildVoiceStates] });
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
+const timeout = 600e3;
 
 const commands = new Collection();
 await registerCommands();
@@ -17,6 +18,8 @@ client.once('ready', () => {
 });
 
 client.login(process.env.TOKEN);
+
+setInterval(update, timeout);
 
 async function registerCommands() {
 	for (const command of baseCommands) {
@@ -47,5 +50,14 @@ async function handleCommand(interaction) {
 			await interaction.deferReply({ ephemeral:true });
 		}
 		await interaction.followUp(createSimpleFailure('There was an error while executing this command!'));
+	}
+}
+
+function update() {
+	for(const guild of client.guilds.cache.values()) {
+		const scheduler = schedulers[guild.id];
+		if(scheduler && scheduler.connection.state.status !== VoiceConnectionStatus.Destroyed && (guild.members.me.voice.channel.members.size <= 1 || scheduler.player.state.status === AudioPlayerStatus.Idle && Date.now() - scheduler.update >= timeout)) {
+			scheduler.connection.destroy();
+		}
 	}
 }
