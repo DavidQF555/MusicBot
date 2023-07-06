@@ -54,7 +54,7 @@ function createMessage(queue, page, current) {
 		const end = Math.min(queue.length, (page + 1) * MAX_PER_PAGE);
 		for (let i = page * MAX_PER_PAGE; i < end; i++) {
 			const track = queue[i];
-			let line = i + 1 + '. [' + track.title.substring(0, MAX_LENGTH) + '](' + track.url + ')';
+			let line = '**' + (i + 1) + '.** [' + track.title.substring(0, MAX_LENGTH) + '](' + track.url + ')';
 			if(i == current) {
 				line = '> **' + line + '**';
 			}
