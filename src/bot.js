@@ -1,12 +1,12 @@
 import 'dotenv/config';
-import { REST, Client, Collection, IntentsBitField, Routes } from 'discord.js';
+import { REST, Client, Collection, IntentsBitField, Routes, MessageFlags } from 'discord.js';
 import { createSimpleFailure } from './util.js';
 import baseCommands from './commands.js';
 import { AudioPlayerStatus, VoiceConnectionStatus } from '@discordjs/voice';
 import { schedulers } from './data.js';
 
 const client = new Client({ intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildVoiceStates] });
-const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 const timeout = 600e3;
 
 const commands = new Collection();
@@ -47,7 +47,7 @@ async function handleCommand(interaction) {
 	catch (error) {
 		console.error(error);
 		if(!interaction.deferred) {
-			await interaction.deferReply({ ephemeral:true });
+			await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		}
 		await interaction.followUp(createSimpleFailure('There was an error while executing this command!'));
 	}

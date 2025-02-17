@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { remove } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 
@@ -16,7 +16,7 @@ export default {
 			await interaction.reply(createSimpleFailure('Must be in the same channel'));
 			return;
 		}
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const query = interaction.options.get('query').value.toLowerCase();
 		const track = remove(interaction.guildId, query);
 		if(track) {

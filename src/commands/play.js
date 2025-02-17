@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, GuildMember } from 'discord.js';
+import { SlashCommandBuilder, GuildMember, MessageFlags } from 'discord.js';
 import { enterChannel } from '../audio/scheduler.js';
 import { schedulers } from '../data.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
@@ -29,7 +29,7 @@ export default {
 		),
 	async execute(interaction) {
 		let scheduler;
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
 			scheduler = schedulers[interaction.guildId];
 			if(!scheduler || interaction.guild.members.me.voice.channelId !== interaction.member.voice.channelId) {

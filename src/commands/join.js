@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, GuildMember } from 'discord.js';
+import { SlashCommandBuilder, GuildMember, MessageFlags } from 'discord.js';
 import { createSimpleFailure, createSimpleSuccess } from '../util.js';
 import { enterChannel } from '../audio/scheduler.js';
 
@@ -8,7 +8,7 @@ export default {
 		.setDescription('Joins the current voice channel'),
 	async execute(interaction) {
 		if (interaction.member instanceof GuildMember && interaction.member.voice.channel && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
-			await interaction.deferReply({ ephemeral: true });
+			await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 			const scheduler = await enterChannel(interaction.member.voice.channel, interaction.channel);
 			if(!scheduler) {
 				await interaction.followUp(createSimpleFailure('Failed to join voice channel in time, please try again later!'));
