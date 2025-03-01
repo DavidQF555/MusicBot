@@ -155,6 +155,7 @@ export class AudioScheduler {
 			this.queueLock = false;
 		}
 		catch (error) {
+			console.error(error);
 			this.queueLock = false;
 			await this.processQueue();
 		}

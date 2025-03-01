@@ -1,6 +1,6 @@
-import { createAudioResource } from '@discordjs/voice';
 import fetch from 'node-fetch';
-import { stream } from 'play-dl';
+import { createAudioResource, demuxProbe } from '@discordjs/voice';
+import ytdl from '@distube/ytdl-core';
 
 export class AudioTrack {
 
@@ -13,9 +13,12 @@ export class AudioTrack {
 		return `Playing [${this.title}](${this.url})`;
 	}
 
-	async createAudioResource() {
-		const out = await stream(this.url);
-		return createAudioResource(out.stream, { metadata: this, inputType: out.type });
+	createAudioResource() {
+		return new Promise((resolve, reject) => {
+			demuxProbe(ytdl(this.url, { filter: 'audio' }))
+				.then(probe => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
+				.catch(reject);
+		});
 	}
 }
 
